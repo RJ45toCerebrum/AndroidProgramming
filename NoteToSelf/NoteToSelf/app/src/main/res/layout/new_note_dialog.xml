@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="@string/note_title"
+        android:ems="10"
+        android:id="@+id/noteTitle"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/noteDescription"
+        android:layout_alignStart="@+id/noteDescription"
+        android:textColor="?attr/colorControlHighlight" />
+
+    <CheckBox
+        android:text="@string/todo_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/noteTodoCheckBox"
+        android:layout_below="@+id/noteIdeaCheckBox"
+        android:layout_alignLeft="@+id/noteIdeaCheckBox"
+        android:layout_alignStart="@+id/noteIdeaCheckBox"
+        android:layout_marginTop="29dp" />
+
+    <CheckBox
+        android:text="@string/important_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:id="@+id/noteImportantCheckBox"
+        android:layout_below="@+id/noteTodoCheckBox"
+        android:layout_alignLeft="@+id/noteTodoCheckBox"
+        android:layout_alignStart="@+id/noteTodoCheckBox" />
+
+    <Button
+        android:text="@string/cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/noteCancelButton"
+        android:elevation="0dp"
+        android:layout_below="@+id/noteImportantCheckBox"
+        android:layout_alignLeft="@+id/noteImportantCheckBox"
+        android:layout_alignStart="@+id/noteImportantCheckBox"
+        android:layout_marginTop="66dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="@string/description_hint"
+        android:ems="10"
+        android:id="@+id/noteDescription"
+        android:layout_marginRight="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginTop="25dp"
+        android:textColor="?attr/colorControlHighlight"
+        android:layout_below="@+id/noteTitle"
+        android:layout_toLeftOf="@+id/noteCreateButton"
+        android:layout_toStartOf="@+id/noteCreateButton" />
+
+    <CheckBox
+        android:text="@string/idea_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/noteIdeaCheckBox"
+        android:layout_marginTop="31dp"
+        android:layout_below="@+id/noteDescription"
+        android:layout_alignLeft="@+id/noteDescription"
+        android:layout_alignStart="@+id/noteDescription" />
+
+    <Button
+        android:text="@string/ok_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/noteCreateButton"
+        android:layout_marginRight="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_alignBaseline="@+id/noteCancelButton"
+        android:layout_alignBottom="@+id/noteCancelButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+</RelativeLayout>
