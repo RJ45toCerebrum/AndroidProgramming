@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Note To Self</string>
+    <string name="action_add">add</string>
+    <string name="note_title">Title</string>
+    <string name="note_description">Description</string>
+    <string name="idea_checkbox">Idea</string>
+    <string name="todo_checkbox">Todo</string>
+    <string name="important_checkbox">Important</string>
+    <string name="cancel_button_text">Cancel</string>
+    <string name="create_note_button_text">Create</string>
+    <string name="done_read_note_text">Done</string>
+    <string name="settings_title">Settings</string>
+</resources>

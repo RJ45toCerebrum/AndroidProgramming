@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:theme="?attr/actionBarTheme"
+        android:minHeight="?attr/actionBarSize"
+        android:id="@+id/toolbar">
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:minWidth="225dp" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_black_24dp"
+            android:id="@+id/addNoteButton"
+            android:elevation="15dp"
+            android:backgroundTint="?attr/colorButtonNormal" />
+
+        <ImageButton
+            android:layout_width="39dp"
+            android:layout_height="39dp"
+            android:layout_marginLeft="30dp"
+            android:src="@android:drawable/ic_menu_info_details"
+            android:id="@+id/settingsButton"/>
+
+        </android.support.v7.widget.Toolbar>
+
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/noteListView"/>
+</LinearLayout>
