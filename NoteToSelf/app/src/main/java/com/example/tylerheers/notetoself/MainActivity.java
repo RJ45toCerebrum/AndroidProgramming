@@ -33,7 +33,6 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
 {
 
-
     // This class is an Adapter that connects
     // to our ListView in This activity and provides
     // easy update to list info in the listview

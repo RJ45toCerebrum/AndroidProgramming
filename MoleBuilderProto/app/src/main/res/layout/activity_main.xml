@@ -1,38 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.tylerheers.molebuilderproto.MainActivity">
+    tools:context="com.example.tylerheers.molebuilderproto.MainActivity"
+    android:orientation="vertical"
+    android:weightSum="1">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="300dp"
-        android:minHeight="300dp"
-        android:maxWidth="300dp"
-        android:maxHeight="300dp"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/downloadImage" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="550dp"
+        android:minHeight="540dp"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_weight="0.05"
+        android:id="@+id/buildAtomLayout">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="240dp"
-        android:minHeight="40dp"
-        android:layout_marginTop="34dp"
-        android:layout_below="@+id/downloadImage"
-        android:layout_alignLeft="@+id/downloadImage"
-        android:layout_alignStart="@+id/downloadImage"
-        android:background="@color/colorAccent"
-        android:textColor="#FFFFFF"
-        android:hint="search mole"
-        android:textColorHint="#FFFFFF"
-        android:paddingLeft="5dp"/>
+        <LinearLayout
+            android:layout_width="90dp"
+            android:layout_height="match_parent"
+            android:weightSum="1"
+            android:id="@+id/atomBondLVLayout"
+            android:orientation="vertical"
+            android:background="#a1a1a1">
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                android:id="@+id/atomListView"
+                android:layout_marginBottom="5dp">
+            </ListView>
 
-</RelativeLayout>
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                android:id="@+id/bondListView"
+                android:layout_marginTop="5dp">
+            </ListView>
+        </LinearLayout>
+
+        <com.example.tylerheers.molebuilderproto.MoleRenderer2D
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.95"
+        android:id="@+id/buttonLayout"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:background="#b0f2e7">
+
+    </LinearLayout>
+
+</LinearLayout>
