@@ -1,5 +1,6 @@
 package com.example.tylerheers.molebuilderproto;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
@@ -110,6 +111,6 @@ public class ImageDownloader extends AsyncTask<String, String, MainActivity>
 
     @Override
     public void onPostExecute(MainActivity callingActivity) {
-        callingActivity.setDownloadImage(this.bitmap);
+        //callingActivity.setDownloadImage(this.bitmap);
     }
 }

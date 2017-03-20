@@ -1,10 +1,7 @@
 package com.example.tylerheers.molebuilderproto;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -20,9 +17,13 @@ import java.net.URLConnection;
  * Created by tylerheers on 2/27/17.
  */
 
-public class PostRequest extends AsyncTask<String, String, Bitmap> {
+public class PostRequest extends AsyncTask<String, String, String>
+{
+    private IAsyncResult caller = null;
 
-
+    PostRequest(IAsyncResult caller){
+        this.caller = caller;
+    }
 
     @Override
     protected void onPreExecute() {
@@ -30,27 +31,46 @@ public class PostRequest extends AsyncTask<String, String, Bitmap> {
     }
 
     @Override
-    public Bitmap doInBackground(String... params)
+    public String doInBackground(String... params)
     {
         String url = params[0];
-        Bitmap bitmap = DownloadImage(url);
-
-        return bitmap;
+        return DownloadSDF(url);
     }
 
-    private static Bitmap DownloadImage(String URL)
+    private static String DownloadSDF(String urlString)
     {
-        Bitmap bitmap = null;
-        InputStream in = null;
-        try {
-            in = OpenHttpConnection(URL);
-            bitmap = BitmapFactory.decodeStream(in);
-            in.close();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+        String resultToDisplay = "";
+
+        InputStream in;
+        HttpURLConnection urlConnection = null;
+        try
+        {
+            URL url = new URL(urlString);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            in = new BufferedInputStream(urlConnection.getInputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+            while(true)
+            {
+                String line = reader.readLine();
+                if(line == null){
+                    break;
+                }
+                resultToDisplay += line + '\n';
+            }
+
         }
-        return bitmap;
+        catch (Exception e) {
+            Log.e("Exception", e.getMessage());
+            return e.getMessage();
+        }
+        finally {
+            if(urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+
+        return resultToDisplay;
     }
 
     private static InputStream OpenHttpConnection(String urlString)
@@ -84,50 +104,10 @@ public class PostRequest extends AsyncTask<String, String, Bitmap> {
         return in;
     }
 
-
     @Override
-    public void onPostExecute(Bitmap result){
-        if(result != null){
-            Log.i("Not Null Image", "Image not null");
+    public void onPostExecute(String result) {
+        if(caller != null) {
+            caller.onPostExecute(result);
         }
     }
-
-    public String TextCon(String... params){
-        String urlString = params[0];
-        String resultToDisplay = "";
-
-        InputStream in;
-        HttpURLConnection urlConnection = null;
-        try
-        {
-            URL url = new URL(urlString);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedInputStream(urlConnection.getInputStream());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-
-            while(true)
-            {
-                String line = reader.readLine();
-                if(line == null){
-                    break;
-                }
-
-                resultToDisplay += line;
-            }
-
-        }
-        catch (Exception e) {
-            Log.e("Exception", e.getMessage());
-            return e.getMessage();
-        }
-        finally {
-
-            if(urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
-
-        return resultToDisplay;
-    }
-
 }

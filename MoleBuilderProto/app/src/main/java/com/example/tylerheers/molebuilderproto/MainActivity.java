@@ -1,102 +1,113 @@
 package com.example.tylerheers.molebuilderproto;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Layout;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 
-import java.util.ArrayList;
+import org.openscience.cdk.Atom;
+import org.openscience.cdk.config.Elements;
+import org.openscience.cdk.interfaces.IBond;
+import org.openscience.cdk.interfaces.IElement;
 
 
 public class MainActivity extends AppCompatActivity
+                            implements View.OnClickListener
 {
-    // used to fill the list view with buttons
-    public class AtomAdapter extends BaseAdapter
-    {
-        ArrayList<String> buttons = new ArrayList<>();
-
-        @Override
-        public int getCount(){
-            return buttons.size();
-        }
-
-        @Override
-        public View getView(int item, View v, ViewGroup group)
-        {
-            if(v == null){
-                LayoutInflater in = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = in.inflate(R.layout.atom_button_layout, group, false);
-            }
-
-            ImageButton b = (ImageButton) v.findViewById(R.id.atomButton);
-            Bitmap icon = BitmapFactory.decodeResource(getBaseContext().getResources(), R.drawable.atoms_carbon);
-            if(icon != null){
-                b.setImageBitmap(icon);
-            }
-
-            return v;
-        }
-
-        @Override
-        public String getItem(int id){
-            return buttons.get(id);
-        }
-
-        @Override
-        public long getItemId(int id){
-            return id;
-        }
-
-        public void addAtom(String atomType) {
-            if (atomType != null) {
-                buttons.add(atomType);
-            }
-        }
-
-    }
-
-    private ListView atomListView;
-    private AtomAdapter atomAdapter;
-
-    private LinearLayout layout;
     private MoleRenderer2D moleRenderer;
+    ImageButton searchMoleButton;
+    ImageButton[] bondButtons;
+    SearchMoleDialog diag;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        searchMoleButton = (ImageButton) findViewById(R.id.startMoleSearch);
 
-        layout = (LinearLayout) findViewById(R.id.buildAtomLayout);
-        try {
-            //moleRenderer = new MoleRenderer2D(this);
-            layout.addView(moleRenderer);
+        searchMoleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                diag = new SearchMoleDialog();
+                diag.setRenderer2D(moleRenderer);
+                diag.show(getFragmentManager(), "123");
+            }
+        });
+
+        moleRenderer = (MoleRenderer2D) findViewById(R.id.moleRenderer2D);
+
+        initAtomButtonList();
+        initBondButtons();
+    }
+
+    private void initAtomButtonList()
+    {
+        LinearLayout atomButtonLayout = (LinearLayout)findViewById(R.id.atomScrollViewLayout);
+
+        for(Elements e : Elements.values())
+        {
+            AtomImageButton button = new AtomImageButton(this);
+            IElement element = e.toIElement();
+            button.setAtom(element);
+
+            switch (element.getSymbol())
+            {
+                case "H":
+                    button.setImageResource(R.drawable.atoms_hydrogen);
+                    break;
+                case "C":
+                    button.setImageResource(R.drawable.atoms_carbon);
+                    break;
+                default:
+                    button.setImageResource(R.drawable.atoms_hydrogen);
+                    break;
+            }
+
+            button.setLayoutParams(atomButtonLayout.getLayoutParams());
+            button.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            button.getLayoutParams().height = 400;
+
+            atomButtonLayout.addView(button);
+            button.setClickable(true);
+            button.setOnClickListener(this);
         }
-        catch (Exception err){
-            Log.i("Error message", err.getMessage());
-        }
+    }
 
+    private void initBondButtons()
+    {
+        bondButtons = new ImageButton[3];
+        bondButtons[0] = (ImageButton) findViewById(R.id.singleBondImageButton);
+        bondButtons[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moleRenderer.addBond(IBond.Order.SINGLE);
+            }
+        });
 
-        atomAdapter = new AtomAdapter();
-        atomAdapter.addAtom("Carbon");
-        atomAdapter.addAtom("Hydrogen");
+        bondButtons[1] = (ImageButton) findViewById(R.id.doubleBondImageButton);
+        bondButtons[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moleRenderer.addBond(IBond.Order.DOUBLE);
+            }
+        });
 
-        atomListView = (ListView) findViewById(R.id.atomListView);
-
-        atomListView.setAdapter(atomAdapter);
+        bondButtons[2] = (ImageButton) findViewById(R.id.tripleBondImageButton);
+        bondButtons[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moleRenderer.addBond(IBond.Order.TRIPLE);
+            }
+        });
 
     }
 
-    public void setDownloadImage(Bitmap bitmap){
-        //downloadImage.setImageBitmap(bitmap);
+    @Override
+    public void onClick(View v){
+        AtomImageButton atomButton = (AtomImageButton)v;
+        moleRenderer.addAtom(new Atom(atomButton.getAtom()));
     }
 }

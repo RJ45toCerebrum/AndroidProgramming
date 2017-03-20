@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ImageButton
-        android:layout_width="47dp"
-        android:layout_height="48dp"
-        android:minWidth="30dp"
-        android:minHeight="30dp"
+    android:layout_height="match_parent"
+    android:id="@+id/buttonLayout"
+    android:weightSum="1">
+
+    <com.example.tylerheers.molebuilderproto.AtomImageButton
+        android:layout_width="62dp"
+        android:layout_height="60dp"
         android:src="@drawable/atoms_carbon"
-        android:background="@drawable/atoms_carbon"
-        android:padding="5dp"
         android:scaleType="fitCenter"
-        android:id="@+id/atomButton"
-        android:contentDescription="@string/make_carbon"/>
+        android:background="@drawable/atoms_carbon"
+        android:id="@+id/atomButton"/>
+
 </LinearLayout>

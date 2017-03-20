@@ -4,7 +4,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "com.example.tylerheers.molebuilderproto"
+        applicationId "evolvevr.rajitut"
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
@@ -26,17 +26,7 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.1.0'
     testCompile 'junit:junit:4.12'
-
-    // For testing 3D OpenGL Engine
+    // https://mvnrepository.com/artifact/org.rajawali3d/rajawali
     compile group: 'org.rajawali3d', name: 'rajawali', version: '1.1.777'
-    // https://mvnrepository.com/artifact/org.openscience.cdk/cdk-core
-    compile group: 'org.openscience.cdk', name: 'cdk-core', version: '1.5.14'
-    // https://mvnrepository.com/artifact/org.openscience.cdk/cdk-interfaces
-    compile group: 'org.openscience.cdk', name: 'cdk-interfaces', version: '1.5.14'
-    // https://mvnrepository.com/artifact/org.openscience.cdk/cdk-standard
-    compile group: 'org.openscience.cdk', name: 'cdk-standard', version: '1.5.14'
-    // https://mvnrepository.com/artifact/org.openscience.cdk/cdk-data
-    compile group: 'org.openscience.cdk', name: 'cdk-data', version: '1.5.14'
-    // https://mvnrepository.com/artifact/org.openscience.cdk/cdk-io
-    compile group: 'org.openscience.cdk', name: 'cdk-io', version: '1.5.14'
+
 }
