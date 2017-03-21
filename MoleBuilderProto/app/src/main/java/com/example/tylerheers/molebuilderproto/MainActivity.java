@@ -2,6 +2,7 @@ package com.example.tylerheers.molebuilderproto;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -46,25 +47,54 @@ public class MainActivity extends AppCompatActivity
     private void initAtomButtonList()
     {
         LinearLayout atomButtonLayout = (LinearLayout)findViewById(R.id.atomScrollViewLayout);
+        String[] elementsArray = getResources().getStringArray(R.array.elements);
 
-        for(Elements e : Elements.values())
+        for(String e : elementsArray)
         {
-            AtomImageButton button = new AtomImageButton(this);
-            IElement element = e.toIElement();
-            button.setAtom(element);
-
-            switch (element.getSymbol())
+            AtomImageButton button = null;
+            switch (e)
             {
-                case "H":
-                    button.setImageResource(R.drawable.atoms_hydrogen);
+                case "hydrogen":
+                    button = new AtomImageButton(this);
+                    button.setAtom(Elements.HYDROGEN);
+                    button.setImageResource(R.drawable.hydrogen);
                     break;
-                case "C":
-                    button.setImageResource(R.drawable.atoms_carbon);
+                case "carbon":
+                    button = new AtomImageButton(this);
+                    button.setAtom(Elements.CARBON);
+                    button.setImageResource(R.drawable.carbon);
+                    break;
+                case "nitrogen":
+                    button = new AtomImageButton(this);
+                    button.setAtom(Elements.NITROGEN);
+                    button.setImageResource(R.drawable.nitrogen);
+                    break;
+                case "oxygen":
+                    button = new AtomImageButton(this);
+                    button.setAtom(Elements.OXYGEN);
+                    button.setImageResource(R.drawable.oxygen);
+                    break;
+                case "sodium":
+                    button = new AtomImageButton(this);
+                    button.setAtom(Elements.SODIUM);
+                    button.setImageResource(R.drawable.sodium);
+                    break;
+                case "phosphorus":
+                    button = new AtomImageButton(this);
+                    button.setAtom(Elements.PHOSPHORUS);
+                    button.setImageResource(R.drawable.phosphorus);
+                    break;
+                case "sulfur":
+                    button = new AtomImageButton(this);
+                    button.setAtom(Elements.SULFUR);
+                    button.setImageResource(R.drawable.sulfur);
                     break;
                 default:
-                    button.setImageResource(R.drawable.atoms_hydrogen);
                     break;
             }
+
+            if(button == null)
+                continue;
 
             button.setLayoutParams(atomButtonLayout.getLayoutParams());
             button.setScaleType(ImageView.ScaleType.FIT_CENTER);

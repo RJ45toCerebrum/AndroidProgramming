@@ -1,5 +1,20 @@
 <resources>
     <string name="app_name">MoleBuilderProto</string>
     <string name="make_carbon">Make Carbon</string>
-    <string name="search_mole_button">Search Mole...</string>
+    <string name="search_mole_button">Search Mole&#8230;</string>
+
+    <string-array name="elements">
+        <item>hydrogen</item>
+        <item>carbon</item>
+        <item>nitrogen</item>
+        <item>oxygen</item>
+        <item>sodium</item>
+        <item>magnesium</item>
+        <item>phosphorus</item>
+        <item>sulfur</item>
+        <item>chlorine</item>
+        <item>potassium</item>
+        <item>calcium</item>
+        <item>other</item>
+    </string-array>
 </resources>

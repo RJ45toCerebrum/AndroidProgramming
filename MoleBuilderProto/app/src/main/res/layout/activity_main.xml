@@ -23,7 +23,7 @@
             android:weightSum="1"
             android:id="@+id/atomBondLVLayout"
             android:orientation="vertical"
-            android:background="#a1a1a1">
+            android:background="#cbb7b7b7">
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -36,6 +36,16 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:id="@+id/atomScrollViewLayout">
+
+                    <!--<com.example.tylerheers.molebuilderproto.AtomImageButton-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="70dp"-->
+                        <!--android:src="@drawable/Hydrogen"-->
+                        <!--android:scaleType="fitCenter"-->
+                        <!--android:id="@+id/eb_hydrogen"-->
+                        <!--android:background="@drawable/Hydrogen"-->
+                        <!--android:contentDescription="Hydrogen" />-->
+
 
                 </LinearLayout>
             </ScrollView>
@@ -94,7 +104,7 @@
         android:id="@+id/buttonLayout"
         android:orientation="horizontal"
         android:weightSum="1"
-        android:background="#b0f2e7">
+        android:background="#cbb7b7b7">
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -109,7 +119,7 @@
             android:minWidth="80dp"
             android:id="@+id/to3DButton"
             android:src="@drawable/ic_3d_rotation_white_24dp"
-            android:background="@color/colorPrimary"
+            android:background="#000000"
             android:elevation="24dp" />
 
     </LinearLayout>

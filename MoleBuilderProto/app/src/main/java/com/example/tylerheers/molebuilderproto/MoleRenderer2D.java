@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 
 import org.openscience.cdk.Atom;
@@ -89,7 +90,7 @@ public class MoleRenderer2D extends View
         atomContainerSet = new AtomContainerSet();
 
         atomPaint = new Paint();
-        atomPaint.setColor(Color.BLUE);
+        atomPaint.setColor(Color.BLACK);
         atomPaint.setStrokeWidth(5);
         atomPaint.setStyle(Paint.Style.STROKE);
         atomPaint.setTextSize(textSize);
