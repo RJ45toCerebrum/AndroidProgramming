@@ -1,5 +1,7 @@
 package com.example.tylerheers.molebuilderproto;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity
                 case "hydrogen":
                     button = new AtomImageButton(this);
                     button.setAtom(Elements.HYDROGEN);
-                    button.setImageResource(R.drawable.hydrogen);
+                    button.setImageResource(R.drawable.atom_other);
                     break;
                 case "carbon":
                     button = new AtomImageButton(this);
@@ -140,4 +142,5 @@ public class MainActivity extends AppCompatActivity
         AtomImageButton atomButton = (AtomImageButton)v;
         moleRenderer.addAtom(new Atom(atomButton.getAtom()));
     }
+
 }

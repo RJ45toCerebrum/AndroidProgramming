@@ -1,6 +1,7 @@
 package com.example.tylerheers.molebuilderproto;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -67,6 +68,11 @@ public class MoleRenderer2D extends View
     Paint selectedAtomPaint;
     Paint bondPaint;
 
+    Bitmap rendererBitmap;
+    int totalHeight = 0;
+    int totalWidth = 0;
+    boolean takeScreenShot = false;
+
 
     public MoleRenderer2D(Context context){
         super(context);
@@ -84,6 +90,7 @@ public class MoleRenderer2D extends View
         super(context, set, defStyle);
         init(set, 0);
     }
+
 
     private void init(AttributeSet set, int defStyle)
     {
@@ -109,6 +116,8 @@ public class MoleRenderer2D extends View
         bondPaint.setStyle(Paint.Style.STROKE);
 
         gestureDetector = new GestureDetector(this.getContext(), new GestureListener());
+        totalHeight = this.getHeight();
+        totalWidth = this.getWidth();
     }
 
     public void addAtom(Atom atom)
@@ -117,14 +126,9 @@ public class MoleRenderer2D extends View
             atom.setPoint2d(new Point2d(10, 10));
             atoms.add(atom);
             selectedAtom = atom;
+            rendererBitmap = null;
             postInvalidate();
         }
-    }
-
-    public void addAtom(Atom atom, Point2d point)
-    {
-        atom.setPoint2d(point);
-        atoms.add(atom);
     }
 
     // adds a bond between currently queued atoms
@@ -166,7 +170,8 @@ public class MoleRenderer2D extends View
         bondHashMap.put(bondHashCode, newBond);
     }
 
-    public void addMolecule(IAtomContainer atomContainer){
+    public void addMolecule(IAtomContainer atomContainer)
+    {
         if (atomContainer != null)
         {
             normalizePositions(atomContainer);
@@ -178,6 +183,7 @@ public class MoleRenderer2D extends View
                     bondHashMap.put(getBondHashCode(b), b);
                 }
             }
+            rendererBitmap = null;
         }
     }
 
@@ -201,20 +207,31 @@ public class MoleRenderer2D extends View
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
-        drawAtoms(canvas);
-        drawMolecules(canvas);
-        drawBonds(canvas);
+//        if(rendererBitmap == null)
+//        {
+            drawAtoms(canvas);
+            drawMolecules(canvas);
+            drawBonds(canvas);
+           // Log.i("Draw", "rendering");
+//        }
+//        else {
+//            canvas.drawBitmap(rendererBitmap, 0, getTop(), atomPaint);
+//            Log.i("Draw", "drawing bit map");
+//        }
+
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
+        rendererBitmap = null;
         gestureDetector.onTouchEvent(event);
 
         // for the single pointer
         if (event.getPointerCount() == 1)
         {
-            switch (event.getAction()) {
+            switch (event.getAction())
+            {
                 case MotionEvent.ACTION_MOVE:
                     if (selectedAtom != null) {
                         Point2d atomPoint = selectedAtom.getPoint2d();
@@ -230,6 +247,7 @@ public class MoleRenderer2D extends View
                     canMove = false;
                     selectedAtom = null;
                     selectedMolecule = null;
+                    //screenShot();
                     break;
             }
         }
@@ -483,6 +501,15 @@ public class MoleRenderer2D extends View
 
             return true;
         }
+    }
+
+    private void screenShot()
+    {
+        this.setDrawingCacheEnabled(true);
+        this.buildDrawingCache(true);
+        rendererBitmap = Bitmap.createBitmap(this.getDrawingCache());
+        this.setDrawingCacheEnabled(false);
+        Log.i("Image created", "the image was created");
     }
 
 }
