@@ -214,7 +214,8 @@ public class MoleRenderer2D extends View
         // for the single pointer
         if (event.getPointerCount() == 1)
         {
-            switch (event.getAction()) {
+            switch (event.getAction())
+            {
                 case MotionEvent.ACTION_MOVE:
                     if (selectedAtom != null) {
                         Point2d atomPoint = selectedAtom.getPoint2d();
