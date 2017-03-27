@@ -4,6 +4,7 @@ package com.example.tylerheers.molebuilderproto;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -26,6 +27,11 @@ public class MainActivity extends AppCompatActivity
     public enum Mode
     {
         Creation, Manipulation
+    }
+
+    public enum Action
+    {
+        CreateAtom, CreateBond
     }
 
     private MoleRenderer2D moleRenderer;
@@ -114,22 +120,22 @@ public class MainActivity extends AppCompatActivity
             {
                 case "hydrogen":
                     button = new AtomButton(this);
-                    button.setAtom(Elements.HYDROGEN);
+                    button.setElement(Elements.Hydrogen);
                     button.setText(Elements.HYDROGEN.getSymbol());
                     break;
                 case "carbon":
                     button = new AtomButton(this);
-                    button.setAtom(Elements.CARBON);
+                    button.setElement(Elements.Carbon);
                     button.setText(Elements.CARBON.getSymbol());
                     break;
                 case "nitrogen":
                     button = new AtomButton(this);
-                    button.setAtom(Elements.NITROGEN);
+                    button.setElement(Elements.Nitrogen);
                     button.setText(Elements.NITROGEN.getSymbol());
                     break;
                 case "oxygen":
                     button = new AtomButton(this);
-                    button.setAtom(Elements.OXYGEN);
+                    button.setElement(Elements.Oxygen);
                     button.setText(Elements.OXYGEN.getSymbol());
                     break;
             }
@@ -153,31 +159,25 @@ public class MainActivity extends AppCompatActivity
         singleBondButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImageButton b = (ImageButton) v;
                 moleRenderer.addBond(IBond.Order.SINGLE);
             }
         });
-        singleBondButton.setColorFilter(Color.GRAY);
 
         ImageButton doubleBondButton = (ImageButton) findViewById(R.id.doubleBondButton);
         doubleBondButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImageButton b = (ImageButton) v;
                 moleRenderer.addBond(IBond.Order.DOUBLE);
             }
         });
-        doubleBondButton.setColorFilter(Color.GRAY);
 
         ImageButton tripleBondButton = (ImageButton) findViewById(R.id.tripleBondButton);
         tripleBondButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImageButton b = (ImageButton) v;
                 moleRenderer.addBond(IBond.Order.TRIPLE);
             }
         });
-        tripleBondButton.setColorFilter(Color.GRAY);
 
         ImageButton deleteAtom = (ImageButton) findViewById(R.id.deleteButton);
         deleteAtom.setOnClickListener(new View.OnClickListener() {
@@ -186,7 +186,6 @@ public class MainActivity extends AppCompatActivity
                 moleRenderer.deleteSelected();
             }
         });
-
 
         creationModeButtons.put("singleBondButton", singleBondButton);
         creationModeButtons.put("doubleBondButton", doubleBondButton);
@@ -226,6 +225,6 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View v)
     {
         AtomButton atomButton = (AtomButton)v;
-        moleRenderer.addAtom(new Atom(atomButton.getAtom()));
+        moleRenderer.addAtom(atomButton.getElement());
     }
 }

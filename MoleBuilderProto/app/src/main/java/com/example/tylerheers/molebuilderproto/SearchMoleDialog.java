@@ -11,13 +11,19 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import org.openscience.cdk.AtomContainer;
+import org.openscience.cdk.Element;
+import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.exception.CDKException;
+import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
+import org.openscience.cdk.interfaces.IBond;
 import org.openscience.cdk.io.MDLV2000Reader;
+import org.openscience.cdk.silent.Bond;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 /**
  * Created by Tyler on 3/11/2017.
@@ -80,9 +86,10 @@ public class SearchMoleDialog extends DialogFragment
                 sdfReader = new MDLV2000Reader(inputStream);
                 IAtomContainer container = new AtomContainer();
                 container = sdfReader.read(container);
-                if(container != null){
-                    Log.d("Atom Count", String.valueOf(container.getAtomCount()));
-                    renderer2D.addMolecule(container);
+                if(container != null)
+                {
+                    Molecule mole = convertAtomContainer(container);
+                    renderer2D.addMolecule(mole);
                 }
             } catch (CDKException ex) {
                 Log.d("Error Occurred", ex.getMessage());
@@ -100,6 +107,55 @@ public class SearchMoleDialog extends DialogFragment
         }
 
         dismiss();
+    }
+
+    private Molecule convertAtomContainer(IAtomContainer container)
+    {
+        HashMap<IBond, MoleculeAtom[]> bondAtoms = new HashMap<>();
+        Molecule mole = new Molecule();
+
+        /*
+            they built it using IAtoms instead of MoleculeAtom
+            which is what is needed;
+            In order to perform the conversion:
+            1) for each of the atoms, we make a new MoleculeAtom which is passed into constructor
+            2) for each of the bonds connect to that atom:
+                a) place it into a hashmap with key as bond. Why? because when i go to the next atom
+                    then i can look up whether its already been added. I need to do this because
+                    a bond is always connected to more than one atom.
+                b) if no entry for the bond, then the algo has not seen it yet --> add it and put the
+                    current MoleculeAtom into the first place of the MoleAtom[] of hashmap
+                c) if there is an entry then this means we are at a bond but from the perspective of
+                        a diff atom. Add atom into the second place of the MoleculeAtom[]
+
+         */
+        for (int i = 0; i < container.getAtomCount(); i++)
+        {
+            IAtom a = container.getAtom(i);
+            Elements e = MoleculeAtom.getElement(a);
+            MoleculeAtom ma = new MoleculeAtom(e, a);
+            mole.addAtom(ma);
+            ma.setMolecule(mole);
+
+            for (IBond b: container.getConnectedBondsList(a))
+            {
+                ma.addBond(b.getOrder());
+                if(bondAtoms.containsKey(b)) {
+                    bondAtoms.get(b)[1] = ma;
+                }
+                else {
+                    MoleculeAtom[] conAtoms = new MoleculeAtom[2];
+                    conAtoms[0] = ma;
+                    bondAtoms.put(b, conAtoms);
+                }
+            }
+        }
+        for (IBond b: bondAtoms.keySet()) {
+            b.setAtoms(bondAtoms.get(b));
+            mole.addBond(b);
+        }
+
+        return  mole;
     }
 
     public void setRenderer2D(MoleRenderer2D renderer2D){

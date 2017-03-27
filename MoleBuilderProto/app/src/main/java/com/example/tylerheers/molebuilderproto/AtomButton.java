@@ -2,8 +2,10 @@ package com.example.tylerheers.molebuilderproto;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.Button;
 
+import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.interfaces.IElement;
 
 /**
@@ -12,7 +14,7 @@ import org.openscience.cdk.interfaces.IElement;
 
 public class AtomButton extends Button
 {
-    private IElement element;
+    private Elements element;
 
     public AtomButton(Context context) {
         super(context);
@@ -26,15 +28,16 @@ public class AtomButton extends Button
         super(context, set, defStyle);
     }
 
-    public void setAtom(IElement atom)
+    public void setElement(Elements element)
     {
-        if(atom == null){
+        if(element == null){
             throw new NullPointerException("Atom cannot be null");
         }
-        this.element = atom;
+        this.element = element;
     }
 
-    public IElement getAtom(){
+
+    public Elements getElement(){
         return element;
     }
 }
