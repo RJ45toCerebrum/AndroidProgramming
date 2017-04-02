@@ -14,7 +14,6 @@ import java.security.InvalidParameterException;
 class MoleculeAtom extends Atom
 {
     private Molecule molecule = null;
-    private Elements element = null;
     private boolean isInMolecule = false;
     private int numBonds = 0;
     private int numConnectedAtoms;
@@ -25,7 +24,7 @@ class MoleculeAtom extends Atom
         super(e.toIElement());
         this.setCovalentRadius(e.covalentRadius());
         this.setAtomicNumber(e.number());
-        element = e;
+        maxNumBonds = getMaxNumBonds(e);
     }
 
     MoleculeAtom(Elements e, IAtom a){
@@ -44,7 +43,6 @@ class MoleculeAtom extends Atom
     boolean isInMolecule(){return isInMolecule; }
 
     Molecule getMolecule() {return molecule; }
-    Elements getElement() {return element; }
 
     int getNumBonds() {return numBonds; }
     int getNumConnectedAtoms() {return numConnectedAtoms;}
@@ -59,7 +57,7 @@ class MoleculeAtom extends Atom
         return true;
     }
 
-    void delBond(IBond.Order order)
+    void delBond(IBond.Order order) throws InvalidParameterException
     {
         if(numBonds < order.numeric())
             throw new InvalidParameterException("Cannot delete a bond of order %1$d because not enough bonds");
@@ -73,7 +71,7 @@ class MoleculeAtom extends Atom
     }
 
     boolean canBond(IBond.Order order) {
-        return ( numBonds + order.numeric() ) > maxNumBonds;
+        return ( numBonds + order.numeric() ) <= maxNumBonds;
     }
 
     static Elements getElement(IAtom a)
@@ -241,16 +239,18 @@ class MoleculeAtom extends Atom
                 return 1;
             case 2:
                 return 2;
-            case 3:
+            case 13:
                 return 3;
-            case 4:
+            case 14:
                 return 4;
-            case 5:
+            case 15:
                 return 3;
-            case 6:
+            case 16:
                 return 2;
-            case 7:
+            case 17:
                 return 1;
+            case 18:
+                return 0;
             default:
                 return 2;
         }

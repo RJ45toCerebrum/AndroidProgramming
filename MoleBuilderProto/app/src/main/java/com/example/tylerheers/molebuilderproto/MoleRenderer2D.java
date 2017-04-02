@@ -13,6 +13,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.Toast;
 
 import org.openscience.cdk.Atom;
 import org.openscience.cdk.Bond;
@@ -133,15 +134,11 @@ public class MoleRenderer2D extends View
         for (IAtom a: atomSelectionQ)
         {
             MoleculeAtom atom = (MoleculeAtom)a;
-            atoms.remove(a);
+            atoms.remove(atom);
             for(Molecule mole : molecules)
             {
                 if(mole.contains(atom)) {
-                    for (IBond b: mole.getConnectedBondsList(a)) {
-                        mole.removeBond(b);
-                        atom.delBond(b.getOrder());
-                    }
-                    mole.removeAtom(a);
+                    mole.removeAtom(atom);
                 }
             }
         }
@@ -158,8 +155,13 @@ public class MoleRenderer2D extends View
 
         MoleculeAtom a1 = atomSelectionQ.poll();
         MoleculeAtom a2 = atomSelectionQ.poll();
-        if(!a1.canBond(order) || !a2.canBond(order))
+        if(!a1.canBond(order) || !a2.canBond(order)) {
+            String message = String.format("%1s can make up to %2d bonds and " +
+                    "%3s can make up to %4d bonds", a1.getSymbol(), MoleculeAtom.getMaxNumBonds(MoleculeAtom.getElement(a1)),
+                                                    a2.getSymbol(), MoleculeAtom.getMaxNumBonds(MoleculeAtom.getElement(a2)));
+            Toast.makeText(moleculeActivity, message, Toast.LENGTH_LONG).show();
             return;
+        }
 
         atoms.remove(a1);
         atoms.remove(a2);
@@ -429,6 +431,7 @@ public class MoleRenderer2D extends View
             atomSelectionQ.clear();
             selectedAtom = null;
             selectedMolecule = null;
+            
             return true;
         }
 
@@ -442,7 +445,7 @@ public class MoleRenderer2D extends View
                 if(mole != null)
                 {
                     for (IAtom atom: mole.atoms()) {
-                        if(atom != alreadySelectedAtom)
+                        if(atom != alreadySelectedAtom || !atomSelectionQ.contains(atom))
                             atomSelectionQ.add((MoleculeAtom) atom);
                     }
                 }
