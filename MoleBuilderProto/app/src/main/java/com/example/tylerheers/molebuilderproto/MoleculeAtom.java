@@ -17,21 +17,19 @@ class MoleculeAtom extends Atom
     private boolean isInMolecule = false;
     private int numBonds = 0;
     private int numConnectedAtoms;
-    private int maxNumBonds = 1;
+    public static final int maxNumBonds = 10;
 
 
     MoleculeAtom(Elements e){
         super(e.toIElement());
         this.setCovalentRadius(e.covalentRadius());
         this.setAtomicNumber(e.number());
-        maxNumBonds = getMaxNumBonds(e);
     }
 
     MoleculeAtom(Elements e, IAtom a){
         super(a);
         this.setCovalentRadius(e.covalentRadius());
         this.setAtomicNumber(e.number());
-        maxNumBonds = getMaxNumBonds(e);
     }
 
     void setMolecule(Molecule mole){
@@ -231,29 +229,7 @@ class MoleculeAtom extends Atom
     }
 
     //TODO: this is not correct, though it gets the most important atoms right
-    static int getMaxNumBonds(Elements e)
-    {
-        switch (e.group())
-        {
-            case 1:
-                return 1;
-            case 2:
-                return 2;
-            case 13:
-                return 3;
-            case 14:
-                return 4;
-            case 15:
-                return 3;
-            case 16:
-                return 2;
-            case 17:
-                return 1;
-            case 18:
-                return 0;
-            default:
-                return 2;
-        }
+    static int getMaxNumBonds(Elements e) {
+        return maxNumBonds;
     }
-
 }

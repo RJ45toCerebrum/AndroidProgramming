@@ -17,7 +17,7 @@ import java.net.URLConnection;
  * Created by tylerheers on 2/27/17.
  */
 
-public class PostRequest extends AsyncTask<String, String, String>
+class PostRequest extends AsyncTask<String, String, String>
 {
     private IAsyncResult caller = null;
 
@@ -61,11 +61,11 @@ public class PostRequest extends AsyncTask<String, String, String>
 
         }
         catch (Exception e) {
-            Log.e("Exception", e.getMessage());
-            return e.getMessage();
+            Log.e("Post Request Exception", e.getMessage());
+            resultToDisplay = null;
         }
         finally {
-            if(urlConnection != null) {
+            if (urlConnection != null) {
                 urlConnection.disconnect();
             }
         }
@@ -105,7 +105,8 @@ public class PostRequest extends AsyncTask<String, String, String>
     }
 
     @Override
-    public void onPostExecute(String result) {
+    public void onPostExecute(String result)
+    {
         if(caller != null) {
             caller.onPostExecute(result);
         }

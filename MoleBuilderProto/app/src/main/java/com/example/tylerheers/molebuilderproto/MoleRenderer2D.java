@@ -23,8 +23,8 @@ import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.interfaces.IBond;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -44,10 +44,13 @@ public class MoleRenderer2D extends View
 
     // fields for Atom's
     int numCreatedAtoms = 0;
+    int numCreatedBonds = 0;
+    int numCreatedMolecules = 0;
     ArrayList<MoleculeAtom> atoms = new ArrayList<>();
     Queue<MoleculeAtom> atomSelectionQ = new LinkedList<>();
 
     ArrayList<Molecule> molecules;
+    //HashMap<String, Molecule> molecules;
     MoleculeAtom selectedAtom = null;
     IAtomContainer selectedMolecule = null;
     float atomCircleRadius = 55.0f;
@@ -74,6 +77,9 @@ public class MoleRenderer2D extends View
     public MoleRenderer2D(Context context){
         super(context);
         init(context);
+
+        HashMap<String, Atom> dict = new HashMap<>();
+
     }
 
     public MoleRenderer2D(Context context, AttributeSet set) {
@@ -93,6 +99,7 @@ public class MoleRenderer2D extends View
     {
         moleculeActivity = (MainActivity) con;
         molecules = new ArrayList<>();
+        //molecules = new HashMap<>();
 
         atomPaint = new Paint();
         atomPaint.setColor(Color.BLACK);
@@ -111,6 +118,9 @@ public class MoleRenderer2D extends View
         gestureDetector = new GestureDetector(this.getContext(), new GestureListener());
         scalerDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
     }
+
+    public int getNumCreatedAtoms() {return numCreatedAtoms;}
+    public int getNumCreatedBonds() {return numCreatedBonds;}
 
     public void addAtom(Elements atom)
     {
@@ -135,6 +145,7 @@ public class MoleRenderer2D extends View
         {
             MoleculeAtom atom = (MoleculeAtom)a;
             atoms.remove(atom);
+
             for(Molecule mole : molecules)
             {
                 if(mole.contains(atom)) {
@@ -156,10 +167,7 @@ public class MoleRenderer2D extends View
         MoleculeAtom a1 = atomSelectionQ.poll();
         MoleculeAtom a2 = atomSelectionQ.poll();
         if(!a1.canBond(order) || !a2.canBond(order)) {
-            String message = String.format("%1s can make up to %2d bonds and " +
-                    "%3s can make up to %4d bonds", a1.getSymbol(), MoleculeAtom.getMaxNumBonds(MoleculeAtom.getElement(a1)),
-                                                    a2.getSymbol(), MoleculeAtom.getMaxNumBonds(MoleculeAtom.getElement(a2)));
-            Toast.makeText(moleculeActivity, message, Toast.LENGTH_LONG).show();
+            Toast.makeText(moleculeActivity, "Max number of bonds = 10", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -170,13 +178,12 @@ public class MoleRenderer2D extends View
         // check if atom one is already a part of a molecule
         if(a1.isInMolecule())
         {
+            mole = a1.getMolecule();
             Molecule atom2Mole = a2.getMolecule();
             if(atom2Mole != null)
-                atom2Mole.removeAtom(a2);
-
-            mole = a1.getMolecule();
-            mole.addAtom(a2);
-            a2.setMolecule(mole);
+                mole.addMolecule(atom2Mole);
+            else
+                a2.setMolecule(mole);
         }
         else if(a2.isInMolecule())
         {
@@ -187,6 +194,7 @@ public class MoleRenderer2D extends View
         else
         {
             mole = new Molecule();
+            mole.setID("molecule"+String.valueOf(numCreatedMolecules));
             mole.addAtom(a1);
             mole.addAtom(a2);
             a1.setMolecule(mole);
@@ -197,10 +205,12 @@ public class MoleRenderer2D extends View
         a1.addBond(order);
         a2.addBond(order);
         newBond.setOrder(order);
+        numCreatedBonds++;
+        newBond.setID("bond"+String.valueOf(numCreatedBonds));
         mole.addBond(newBond);
         molecules.add(mole);
-        atomSelectionQ.clear();
 
+        atomSelectionQ.clear();
         rendererBitmap = null;
         lastActive = System.currentTimeMillis();
         postInvalidate();
@@ -216,6 +226,10 @@ public class MoleRenderer2D extends View
 
             rendererBitmap = null;
             lastActive = System.currentTimeMillis();
+
+            numCreatedAtoms += mole.getAtomCount();
+            numCreatedBonds += mole.getBondCount();
+            numCreatedMolecules += 1;
         }
     }
 
@@ -448,6 +462,22 @@ public class MoleRenderer2D extends View
                         if(atom != alreadySelectedAtom || !atomSelectionQ.contains(atom))
                             atomSelectionQ.add((MoleculeAtom) atom);
                     }
+
+                     //Testing here
+//                    try {
+//                        ModelBuilder3D builder3D = ModelBuilder3D.getInstance(DefaultChemObjectBuilder.getInstance());
+//                        IAtomContainer con = builder3D.generate3DCoordinates(mole, false);
+//                        for (IAtom newAtom: con.atoms()) {
+//                            Log.d("new atom", newAtom.getPoint3d().toString());
+//                        }
+//                    }
+//                    catch (CDKException ex) {
+//                        Log.i("Building 3d exception", ex.getMessage());
+//                    }
+//                    catch (Exception io){
+//                        Log.i("Clone or IO exception", io.getMessage());
+//                    }
+                     //end testing
                 }
             }
         }
@@ -459,7 +489,6 @@ public class MoleRenderer2D extends View
             if(sa == null)
                 return;
             selectedAtom = (MoleculeAtom)sa;
-
             // add to the selection Q, if not null
             if(atomSelectionQ.size() < maxSelectedAtoms)
                 if(!atomSelectionQ.contains(selectedAtom))

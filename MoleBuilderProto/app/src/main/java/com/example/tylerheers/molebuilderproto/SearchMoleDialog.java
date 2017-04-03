@@ -4,11 +4,15 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import org.openscience.cdk.AtomContainer;
 import org.openscience.cdk.Element;
@@ -35,6 +39,7 @@ public class SearchMoleDialog extends DialogFragment
 {
     PostRequest requestSDF;
     EditText searchText;
+    RadioGroup radioGroup;
     MoleRenderer2D renderer2D;
     MDLV2000Reader sdfReader;
 
@@ -48,6 +53,8 @@ public class SearchMoleDialog extends DialogFragment
         searchMoleView.setVisibility(View.VISIBLE);
 
         searchText = (EditText) searchMoleView.findViewById(R.id.searchMoleEditText);
+        searchText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
+
         Button searchButton = (Button) searchMoleView.findViewById(R.id.searchMoleButton);
         Button cancelButton = (Button) searchMoleView.findViewById(R.id.cancelSearchButton);
 
@@ -59,6 +66,19 @@ public class SearchMoleDialog extends DialogFragment
         });
         searchButton.setOnClickListener(this);
 
+        radioGroup = (RadioGroup)searchMoleView.findViewById(R.id.moleSearch_RadioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                if(checkedId == R.id.cid_moleSearch)
+                    searchText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                else
+                    searchText.setInputType(InputType.TYPE_CLASS_TEXT);
+            }
+        });
+        radioGroup.check(R.id.name_moleSearch);
+
         builder.setView(searchMoleView);
         return builder.create();
     }
@@ -69,7 +89,14 @@ public class SearchMoleDialog extends DialogFragment
         if(searchText.length() > 0)
         {
             String moleculeName = searchText.getText().toString();
-            String url = String.format("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/%s/SDF", moleculeName);
+            int id = radioGroup.getCheckedRadioButtonId();
+            String url;
+            if(id == R.id.name_moleSearch)
+                url = String.format("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/%s/SDF", moleculeName);
+            else if(id == R.id.cid_moleSearch)
+                url = String.format("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/SDF", moleculeName);
+            else
+                url = String.format("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/SDF", moleculeName);
             requestSDF.execute(url);
         }
     }
@@ -77,8 +104,12 @@ public class SearchMoleDialog extends DialogFragment
     @Override
     public void onPostExecute(String results)
     {
-        //Log.d("SDF results", results);
-        if(renderer2D != null)
+        if(results == null) {
+            Toast.makeText(getActivity().getBaseContext(), "Could not find molecule", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(renderer2D != null && results.length() > 0)
         {
             InputStream inputStream = new ByteArrayInputStream(results.getBytes());
             try
@@ -92,6 +123,9 @@ public class SearchMoleDialog extends DialogFragment
                     renderer2D.addMolecule(mole);
                 }
             } catch (CDKException ex) {
+                Log.d("Error Occurred", ex.getMessage());
+            }
+            catch (Exception ex){
                 Log.d("Error Occurred", ex.getMessage());
             }
             finally
@@ -129,11 +163,14 @@ public class SearchMoleDialog extends DialogFragment
                         a diff atom. Add atom into the second place of the MoleculeAtom[]
 
          */
+        int numCreatedAtoms = renderer2D.getNumCreatedAtoms() + 1;
+        int numCreatedBonds = renderer2D.getNumCreatedBonds() + 1;
         for (int i = 0; i < container.getAtomCount(); i++)
         {
             IAtom a = container.getAtom(i);
             Elements e = MoleculeAtom.getElement(a);
             MoleculeAtom ma = new MoleculeAtom(e, a);
+            ma.setID("atom"+ String.valueOf(numCreatedAtoms + i));
             mole.addAtom(ma);
             ma.setMolecule(mole);
 
@@ -150,9 +187,12 @@ public class SearchMoleDialog extends DialogFragment
                 }
             }
         }
+
         for (IBond b: bondAtoms.keySet()) {
             b.setAtoms(bondAtoms.get(b));
             mole.addBond(b);
+            b.setID("bond"+String.valueOf(numCreatedBonds));
+            numCreatedBonds++;
         }
 
         return  mole;

@@ -92,7 +92,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:weightSum="1"
         android:background="#cbb7b7b7"
         android:id="@+id/buttonLayout">
 
@@ -108,10 +107,19 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:minWidth="80dp"
-            android:id="@+id/to3DButton"
             android:src="@drawable/ic_3d_rotation_white_24dp"
             android:background="#969696"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="35dp"
+            android:id="@+id/to3DButton"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:minWidth="80dp"
+            android:src="@drawable/ic_undo_white_24dp"
+            android:background="#969696"
+            android:layout_marginLeft="35dp"
+            android:id="@+id/undoActionButton" />
 
     </LinearLayout>
 

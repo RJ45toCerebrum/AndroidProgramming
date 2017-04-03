@@ -54,4 +54,19 @@ class Molecule extends AtomContainer
 
         super.removeAtom(atom);
     }
+
+    void addMolecule(Molecule molecule)
+    {
+        for (IAtom a: molecule.atoms())
+        {
+            MoleculeAtom ma = (MoleculeAtom)a;
+            ma.setMolecule(this);
+            addAtom(a);
+        }
+        for (IBond b: molecule.bonds())
+            addBond(b);
+
+
+        molecule.removeAllElements();
+    }
 }

@@ -2,6 +2,9 @@
     <string name="app_name">MoleBuilderProto</string>
     <string name="make_carbon">Make Carbon</string>
     <string name="search_mole_button">Search Mole&#8230;</string>
+    <string name="search_cid">CID</string>
+    <string name="search_name">Name</string>
+    <string name="search_smiles">Smiles</string>
 
     <string-array name="elements">
         <item>hydrogen</item>

@@ -41,4 +41,5 @@ dependencies {
     compile group: 'org.openscience.cdk', name: 'cdk-io', version: '1.5.14'
     // https://mvnrepository.com/artifact/org.openscience.cdk/cdk-silent/1.5.14
     compile group: 'org.openscience.cdk', name: 'cdk-silent', version: '1.5.14'
+
 }

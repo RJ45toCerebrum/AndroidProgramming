@@ -7,39 +7,24 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
-import org.openscience.cdk.Atom;
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.interfaces.IBond;
 
 import java.util.HashMap;
+import java.util.Stack;
 
-
+//TODO: Add periodic table button and fragment
 public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener
 {
-    //TODO: implement each mode such that you first select the mode
-    //TODO: before performing actions; Atom mode allows you to add
-    //TODO: atoms for example; and you only add in that mode
-    public enum Mode
-    {
-        Creation, Manipulation
-    }
-
-    public enum Action
-    {
-        CreateAtom, CreateBond
-    }
-
     private MoleRenderer2D moleRenderer;
     private HashMap<String, ImageButton> creationModeButtons;
     private SearchMoleDialog diag;
-
-    // Every mode has its corresponding button
-    private ImageButton addAtomButton;
 
     private LinearLayout toolbarLayout;
     private ScrollView atomScrollView;
@@ -49,7 +34,9 @@ public class MainActivity extends AppCompatActivity
     private ViewGroup.LayoutParams modeSVLayoutParams;
     private LinearLayout.LayoutParams filledParam;
 
-    public Mode currentMode = Mode.Creation;
+    private Stack<Action> actions = new Stack<>();
+    private ImageButton undoButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -74,6 +61,8 @@ public class MainActivity extends AppCompatActivity
         moleRenderer = new MoleRenderer2D(this);
         lo.addView(moleRenderer);
 
+        undoButton = (ImageButton)findViewById(R.id.undoActionButton);
+
         initAtomButtonList();
         initModeButtons();
     }
@@ -85,28 +74,8 @@ public class MainActivity extends AppCompatActivity
     protected void onResume()
     {
         super.onResume();
-
-        if(currentMode == Mode.Creation)
-            setAtomButtonListVisibility(true);
-        else
-            setAtomButtonListVisibility(false);
     }
 
-    private void setAtomButtonListVisibility(boolean makeVisible)
-    {
-        if(makeVisible)
-        {
-            modeScrollView.setLayoutParams(modeSVLayoutParams);
-            atomScrollView.setVisibility(View.VISIBLE);
-            atomSVLayoutParams.height = atomSVVisibleHeight;
-        }
-        else
-        {
-            atomScrollView.setVisibility(View.INVISIBLE);
-            atomSVLayoutParams.height = 0;
-            modeScrollView.setLayoutParams(filledParam);
-        }
-    }
 
     private void initAtomButtonList()
     {
@@ -227,4 +196,5 @@ public class MainActivity extends AppCompatActivity
         AtomButton atomButton = (AtomButton)v;
         moleRenderer.addAtom(atomButton.getElement());
     }
+
 }
