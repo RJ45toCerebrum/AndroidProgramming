@@ -1,16 +1,12 @@
 package com.example.tylerheers.molebuilderproto;
 
 
-import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.Toast;
 
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.interfaces.IBond;
@@ -23,17 +19,10 @@ public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener
 {
     private MoleRenderer2D moleRenderer;
-    private HashMap<String, ImageButton> creationModeButtons;
+    private HashMap<String, ImageButton> actionButtons;
     private SearchMoleDialog diag;
 
-    private LinearLayout toolbarLayout;
-    private ScrollView atomScrollView;
-    private ViewGroup.LayoutParams atomSVLayoutParams;
-    private int atomSVVisibleHeight;
-    private ScrollView modeScrollView;
-    private ViewGroup.LayoutParams modeSVLayoutParams;
-    private LinearLayout.LayoutParams filledParam;
-
+    // TODO: implement undo data structure and find out better way
     private Stack<Action> actions = new Stack<>();
     private ImageButton undoButton;
 
@@ -43,8 +32,6 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        initToolbar();
 
         ImageButton searchMoleButton = (ImageButton) findViewById(R.id.startMoleSearch);
         searchMoleButton.setOnClickListener(new View.OnClickListener()
@@ -123,7 +110,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initModeButtons()
     {
-        creationModeButtons = new HashMap<>(6);
+        actionButtons = new HashMap<>(6);
         ImageButton singleBondButton = (ImageButton) findViewById(R.id.singleBondButton);
         singleBondButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,38 +143,36 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        creationModeButtons.put("singleBondButton", singleBondButton);
-        creationModeButtons.put("doubleBondButton", doubleBondButton);
-        creationModeButtons.put("tripleBondButton", tripleBondButton);
+        ImageButton undoButton = (ImageButton)findViewById(R.id.undoActionButton);
+        undoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                Action action = actions.pop();
+                Toast.makeText(MainActivity.this, action.getActionType().toString(), Toast.LENGTH_LONG).show();
+                switch (action.getActionType())
+                {
+                    case Add:
+                        moleRenderer.undoAdd(action.getObjIDList(), action.getClassType());
+                        break;
+                    case Delete:
+                        break;
+                    case Manipulation:
+                        break;
+
+                }
+            }
+        });
+
+        actionButtons.put("singleBondButton", singleBondButton);
+        actionButtons.put("doubleBondButton", doubleBondButton);
+        actionButtons.put("tripleBondButton", tripleBondButton);
+        actionButtons.put("undoButton", undoButton);
     }
 
-    private void initToolbar()
-    {
-        toolbarLayout = (LinearLayout)findViewById(R.id.toolBarLayout);
-        atomScrollView = (ScrollView)findViewById(R.id.atomScrollView);
-        atomSVLayoutParams = atomScrollView.getLayoutParams();
-        atomSVVisibleHeight = atomSVLayoutParams.height;
 
-        modeScrollView = (ScrollView)findViewById(R.id.modeScrollView);
-        modeSVLayoutParams = modeScrollView.getLayoutParams();
-
-        filledParam = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1.0f
-        );
-    }
-
-    private void setButtonColors(ImageButton selectedButton)
-    {
-        for (String b: creationModeButtons.keySet())
-        {
-            ImageButton ib = creationModeButtons.get(b);
-            if(ib == selectedButton)
-                ib.setColorFilter(Color.RED);
-            else
-                ib.setColorFilter(Color.GRAY);
-        }
+    public void addAction(Action action) {
+        actions.push(action);
     }
 
     @Override

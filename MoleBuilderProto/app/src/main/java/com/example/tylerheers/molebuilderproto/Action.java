@@ -3,33 +3,36 @@ package com.example.tylerheers.molebuilderproto;
 import java.security.InvalidParameterException;
 import java.util.List;
 
-/**
- * Created by Tyler on 4/3/2017.
- */
 
 class Action
 {
-    public enum ActionType
+    enum ActionType
     {
-        Add, Remove, Delete, Manipulation
+        Add, Delete, Manipulation
     }
 
-    private ActionType type;
+    public ActionType type;
     private List<String> objIDs;
+    private Class<?> classType;
 
     Action(){}
 
-    Action(ActionType type, List objIDs)
+    ActionType getActionType() { return type; }
+    void setActionType(ActionType type) {
+        this.type = type;
+    }
+
+    void setClassType(Class<?> classType)
     {
-        setObjList(objIDs);
-        this.type = type;
-    }
+        if(classType != MoleculeAtom.class && classType != Molecule.class)
+            throw new InvalidParameterException("Class type should be of MoleculeAtom or Molecule");
 
-    public void setType(ActionType type) {
-        this.type = type;
+        this.classType = classType;
     }
+    Class<?> getClassType() {return classType; }
 
-    void setObjList(List objIDs)
+    List<String> getObjIDList(){return objIDs; }
+    void setObjIDList(List objIDs)
     {
         if( !(objIDs != null && objIDs.size() > 0) )
             throw new InvalidParameterException("the list must have ids in them");

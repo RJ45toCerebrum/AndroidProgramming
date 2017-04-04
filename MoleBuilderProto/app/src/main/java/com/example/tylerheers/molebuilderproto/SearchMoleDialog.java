@@ -122,12 +122,11 @@ public class SearchMoleDialog extends DialogFragment
                     Molecule mole = convertAtomContainer(container);
                     renderer2D.addMolecule(mole);
                 }
-            } catch (CDKException ex) {
+            }
+            catch (CDKException ex) {
                 Log.d("Error Occurred", ex.getMessage());
             }
-            catch (Exception ex){
-                Log.d("Error Occurred", ex.getMessage());
-            }
+
             finally
             {
                 try {
@@ -165,6 +164,7 @@ public class SearchMoleDialog extends DialogFragment
          */
         int numCreatedAtoms = renderer2D.getNumCreatedAtoms() + 1;
         int numCreatedBonds = renderer2D.getNumCreatedBonds() + 1;
+        int numCreatedMolecules = renderer2D.getNumCreatedMolecules() + 1;
         for (int i = 0; i < container.getAtomCount(); i++)
         {
             IAtom a = container.getAtom(i);
@@ -195,6 +195,7 @@ public class SearchMoleDialog extends DialogFragment
             numCreatedBonds++;
         }
 
+        mole.setID("mole"+String.valueOf(numCreatedMolecules));
         return  mole;
     }
 
