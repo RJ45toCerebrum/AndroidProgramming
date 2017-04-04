@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener
 {
     private MoleRenderer2D moleRenderer;
+    private LockableScrollView lockableScrollView;
     private HashMap<String, ImageButton> actionButtons;
     private SearchMoleDialog diag;
 
@@ -49,10 +50,11 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        lockableScrollView = (LockableScrollView)findViewById(R.id.canvasScrollView);
         RelativeLayout canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
         moleRenderer = new MoleRenderer2D(this);
         canvasLayout.addView(moleRenderer);
-        moleRenderer.setLayoutParams(new RelativeLayout.LayoutParams(1000, 1000));
+        moleRenderer.setLayoutParams(new RelativeLayout.LayoutParams(2000, 2000));
 
         undoButton = (ImageButton)findViewById(R.id.undoActionButton);
 
@@ -176,6 +178,13 @@ public class MainActivity extends AppCompatActivity
         actionButtons.put("undoButton", undoButton);
     }
 
+    public void lockScrollView(){
+        lockableScrollView.setScrollingEnabled(false);
+    }
+    public void unlockScrollView(){
+        lockableScrollView.setScrollingEnabled(true);
+    }
+    public boolean isScrollable() {return lockableScrollView.isScrollable(); }
 
     public void addAction(Action action) {
         actions.push(action);

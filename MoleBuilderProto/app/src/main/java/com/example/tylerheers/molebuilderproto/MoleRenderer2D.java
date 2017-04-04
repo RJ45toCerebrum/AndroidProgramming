@@ -479,6 +479,9 @@ public class MoleRenderer2D extends View
         @Override
         public boolean onDown(MotionEvent e) {
             selection(e);
+            if(!atomSelectionQ.isEmpty())
+                moleculeActivity.lockScrollView();
+
             return true;
         }
 
@@ -488,7 +491,9 @@ public class MoleRenderer2D extends View
             atomSelectionQ.clear();
             selectedAtom = null;
             selectedMolecule = null;
-            
+
+            moleculeActivity.unlockScrollView();
+
             return true;
         }
 
