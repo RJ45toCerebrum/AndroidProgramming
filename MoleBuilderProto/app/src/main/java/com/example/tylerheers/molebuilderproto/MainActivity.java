@@ -1,11 +1,16 @@
 package com.example.tylerheers.molebuilderproto;
 
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import org.openscience.cdk.config.Elements;
@@ -44,9 +49,10 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        LinearLayout lo = (LinearLayout)findViewById(R.id.buildAtomLayout);
+        RelativeLayout canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
         moleRenderer = new MoleRenderer2D(this);
-        lo.addView(moleRenderer);
+        canvasLayout.addView(moleRenderer);
+        moleRenderer.setLayoutParams(new RelativeLayout.LayoutParams(1000, 1000));
 
         undoButton = (ImageButton)findViewById(R.id.undoActionButton);
 

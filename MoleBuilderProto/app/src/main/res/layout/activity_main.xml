@@ -85,6 +85,18 @@
             </ScrollView>
         </LinearLayout>
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/canvasScrollView">
+            <RelativeLayout
+                android:layout_width="500dp"
+                android:layout_height="600dp"
+                android:id="@+id/canvasLayout">
+
+
+            </RelativeLayout>
+        </ScrollView>
 
     </LinearLayout>
 
