@@ -85,19 +85,12 @@
             </ScrollView>
         </LinearLayout>
 
-        <com.example.tylerheers.molebuilderproto.LockableScrollView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/canvasScrollView"
-            android:scrollbarStyle="outsideOverlay">
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="800dp"
-                    android:id="@+id/canvasLayout"
-                    android:background="@color/rendererBackground">
+            android:id="@+id/canvasLayout">
 
-                </RelativeLayout>
-        </com.example.tylerheers.molebuilderproto.LockableScrollView>
+        </RelativeLayout>
 
     </LinearLayout>
 

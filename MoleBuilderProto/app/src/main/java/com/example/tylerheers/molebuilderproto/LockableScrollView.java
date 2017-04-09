@@ -3,10 +3,10 @@ package com.example.tylerheers.molebuilderproto;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.ScrollView;
+import android.widget.HorizontalScrollView;
 
 // Canvas is placed into this so it can be locked on drag of atoms
-public class LockableScrollView extends ScrollView
+public class LockableScrollView extends HorizontalScrollView
 {
     private boolean scrollable = false;
 

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -68,11 +70,13 @@ public class MoleRenderer2D extends View
     Paint atomPaint;
     Paint selectedAtomPaint;
 
-    // efficiency
+    // rendering
     Bitmap rendererBitmap;
-    boolean takingScreenShot = false;
-    float lastActive = 0;
-    float maxInactiveTime = 2000.0f;
+    CountDownTimer screenShotTimer;
+    long timeToScreenShot = 100;       // milli-secs
+
+    double dx, dy;
+    double panX, panY;
 
 
     public MoleRenderer2D(Context context){
@@ -113,6 +117,16 @@ public class MoleRenderer2D extends View
 
         gestureDetector = new GestureDetector(this.getContext(), new GestureListener());
         scalerDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
+
+        screenShotTimer = new CountDownTimer(timeToScreenShot, 1000)
+        {
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                screenShot();
+            }
+        };
     }
 
     public int getNumCreatedAtoms() {return numCreatedAtoms;}
@@ -128,7 +142,7 @@ public class MoleRenderer2D extends View
 
             MoleculeAtom newAtom = new MoleculeAtom(atom);
             newAtom.setID("atom"+String.valueOf(numCreatedAtoms));
-            newAtom.setPoint2d(new Point2d(200, 300));
+            newAtom.setPoint2d(new Point2d(panX, panY));
             atoms.put(newAtom.getID(), newAtom);
             rendererBitmap = null;
 
@@ -136,7 +150,6 @@ public class MoleRenderer2D extends View
             ids.add(newAtom.getID());
             sendAction(Action.ActionType.Add, ids, MoleculeAtom.class);
 
-            lastActive = System.currentTimeMillis();
             postInvalidate();
         }
     }
@@ -195,7 +208,6 @@ public class MoleRenderer2D extends View
 
         atomSelectionQ.clear();
         rendererBitmap = null;
-        lastActive = System.currentTimeMillis();
         postInvalidate();
     }
 
@@ -204,12 +216,11 @@ public class MoleRenderer2D extends View
         if (mole != null)
         {
             normalizePositions(mole);
-            GeometryUtil.translate2DCenterTo(mole, new Point2d(200, 200));
+            GeometryUtil.translate2DCenterTo(mole, new Point2d(getWidth() + panX, getHeight() + panY));
 
             molecules.put(mole.getID(), mole);
 
             rendererBitmap = null;
-            lastActive = System.currentTimeMillis();
 
             numCreatedAtoms += mole.getAtomCount();
             numCreatedBonds += mole.getBondCount();
@@ -239,6 +250,11 @@ public class MoleRenderer2D extends View
         postInvalidate();
     }
 
+    public boolean isSelection()
+    {
+        return !(atomSelectionQ.isEmpty() && selectedMolecule == null);
+    }
+
     public void undoAdd(List<String> objIDs, Class<?> classType)
     {
         if(classType == MoleculeAtom.class)
@@ -264,11 +280,6 @@ public class MoleRenderer2D extends View
 
         rendererBitmap = null;
         postInvalidate();
-    }
-
-    public void undoDelete(List<String> objList, Class<?> classType)
-    {
-
     }
 
     void sendAction(Action.ActionType actionType, List<String> objID, Class<?> classType)
@@ -308,23 +319,28 @@ public class MoleRenderer2D extends View
         return v;
     }
 
+    // DelETE
+    private void printAtomPos()
+    {
+        for (IAtom a: atoms.values())
+            Log.i("Atom Pos", a.getPoint2d().toString());
+    }
+
     void drawAtoms(Canvas canvas)
     {
         // for individually created atoms
         for (Atom a: atoms.values())
         {
             Point2d aPoint = a.getPoint2d();
+            float x = (float)(aPoint.getX());
+            float y = (float)(aPoint.getY());
             if(a == selectedAtom || atomSelectionQ.contains(a))
-                canvas.drawCircle((float)aPoint.getX(), (float)aPoint.getY(),
-                        atomCircleRadius * scaleFactor, selectedAtomPaint);
+                canvas.drawCircle(x, y, atomCircleRadius * scaleFactor, selectedAtomPaint);
             else
-                canvas.drawCircle((float)aPoint.getX(), (float)aPoint.getY(),
-                        atomCircleRadius * scaleFactor, atomPaint);
+                canvas.drawCircle(x, y, atomCircleRadius * scaleFactor, atomPaint);
 
-            float x = (float)aPoint.getX();
-            float y = (float)aPoint.getY();
             atomPaint.setTextSize(textSize * scaleFactor);
-            canvas.drawText(a.getSymbol(),x, y+atomCircleRadius/2, atomPaint);
+            canvas.drawText(a.getSymbol(),x, y + atomCircleRadius/2, atomPaint);
         }
     }
 
@@ -333,8 +349,8 @@ public class MoleRenderer2D extends View
         for (IAtom a: con.atoms())
         {
             Point2d aPoint = a.getPoint2d();
-            float x = (float)aPoint.getX();
-            float y = (float)aPoint.getY();
+            float x = (float)(aPoint.getX());
+            float y = (float)(aPoint.getY());
             if(atomSelectionQ.contains(a))
                 canvas.drawCircle(x, y, atomCircleRadius * scaleFactor, selectedAtomPaint);
             else
@@ -356,10 +372,10 @@ public class MoleRenderer2D extends View
                 Point2d a1Pos = b.getAtom(0).getPoint2d();
                 Point2d a2Pos = b.getAtom(1).getPoint2d();
 
-                float xPos1 = (float) a1Pos.getX();
-                float yPos1 = (float) a1Pos.getY();
-                float xPos2 = (float) a2Pos.getX();
-                float yPos2 = (float) a2Pos.getY();
+                float xPos1 = (float) (a1Pos.getX());
+                float yPos1 = (float) (a1Pos.getY());
+                float xPos2 = (float) (a2Pos.getX());
+                float yPos2 = (float) (a2Pos.getY());
 
                 switch (b.getOrder()) {
                     case SINGLE:
@@ -402,56 +418,64 @@ public class MoleRenderer2D extends View
         postInvalidate();
     }
 
-    private void screenShot()
+    private void screenShot() {
+        rendererBitmap = loadBitmapFromView(getWidth(), getHeight());
+    }
+
+    private Bitmap loadBitmapFromView(int width, int height)
     {
-        takingScreenShot = true;
-        lastActive = System.currentTimeMillis();
-        this.setDrawingCacheEnabled(true);
-        this.buildDrawingCache(true);
-        rendererBitmap = Bitmap.createBitmap(this.getDrawingCache());
-        this.setDrawingCacheEnabled(false);
-        Log.i("Image created", "the image was created");
-        takingScreenShot = false;
+        Bitmap b = Bitmap.createBitmap(width , height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+
+        layout(getLeft(), getTop(), width, height);
+        draw(c);
+        return b;
     }
 
     @Override
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
-
-        if (rendererBitmap == null) {
+        canvas.save();
+        if (rendererBitmap == null)
+        {
+            canvas.scale(scaleFactor, scaleFactor);
             drawAtoms(canvas);
             drawMolecules(canvas);
             drawBonds(canvas);
-            if ((System.currentTimeMillis() - lastActive) > maxInactiveTime && !takingScreenShot)
-                screenShot();
         }
-        else
+        else {
+            Log.i("Bitmap", "Drawing");
             canvas.drawBitmap(rendererBitmap, 0, getTop(), atomPaint);
+        }
+        canvas.restore();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
         rendererBitmap = null;
-        lastActive = System.currentTimeMillis();
         gestureDetector.onTouchEvent(event);
-        //scalerDetector.onTouchEvent(event);
+        scalerDetector.onTouchEvent(event);
 
         switch (event.getAction())
         {
-            case  MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN:
+                screenShotTimer.cancel();
                 lastPointerLoc.set(event.getX(), event.getY());
+                break;
+
             case MotionEvent.ACTION_MOVE:
-                if (selectedAtom != null) {
+                rendererBitmap = null;
+                dx = (event.getX() - lastPointerLoc.getX());
+                dy = (event.getY() - lastPointerLoc.getY());
+                if (selectedAtom != null)
+                {
                     for (IAtom a : atomSelectionQ)
                     {
                         Point2d atomPoint = a.getPoint2d();
-                        // get change in x and y direction
-                        double deltaX = event.getX() - lastPointerLoc.getX();
-                        double deltaY = event.getY() - lastPointerLoc.getY();
-                        atomPoint.setX(atomPoint.getX() + deltaX);
-                        atomPoint.setY(atomPoint.getY() + deltaY);
+                        atomPoint.setX(atomPoint.getX() + dx);
+                        atomPoint.setY(atomPoint.getY() + dy);
                     }
                 }
                 if (selectedMolecule != null) {
@@ -459,11 +483,31 @@ public class MoleRenderer2D extends View
                     GeometryUtil.translate2DCenterTo(selectedMolecule, newPoint);
                 }
 
+                // Dragging
+                if(selectedAtom == null && selectedMolecule == null)
+                {
+                    for (IAtom a: atoms.values()) {
+                        Point2d atomPoint = a.getPoint2d();
+                        atomPoint.setX(atomPoint.getX() + dx);
+                        atomPoint.setY(atomPoint.getY() + dy);
+                    }
+                    for (Molecule m: molecules.values()) {
+                        for (IAtom a: m.atoms()) {
+                            Point2d atomPoint = a.getPoint2d();
+                            atomPoint.setX(atomPoint.getX() + dx);
+                            atomPoint.setY(atomPoint.getY() + dy);
+                        }
+                    }
+                }
+
                 lastPointerLoc.set(event.getX(), event.getY());
                 break;
+
             case MotionEvent.ACTION_UP:
+                dx = 0;
+                dy = 0;
                 canMove = false;
-                screenShot();
+                screenShotTimer.start();
                 break;
         }
 
@@ -473,15 +517,15 @@ public class MoleRenderer2D extends View
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener
     {
-        float minSelectionDistance = 150;
+        float minSelectionDistance = 100;
         Point2d selectionPoint = new Point2d(0,0);
 
         @Override
         public boolean onDown(MotionEvent e) {
+            printAtomPos();
+            Log.i("Pan Amount", String.valueOf(panX) + " , " + String.valueOf(panY));
+            Log.i("Selction Point", String.valueOf(e.getX()) + " , " + String.valueOf(e.getY()));
             selection(e);
-            if(!atomSelectionQ.isEmpty())
-                moleculeActivity.lockScrollView();
-
             return true;
         }
 
@@ -491,8 +535,6 @@ public class MoleRenderer2D extends View
             atomSelectionQ.clear();
             selectedAtom = null;
             selectedMolecule = null;
-
-            moleculeActivity.unlockScrollView();
 
             return true;
         }
@@ -532,8 +574,7 @@ public class MoleRenderer2D extends View
 
         private void selection(MotionEvent e)
         {
-            selectionPoint.set(e.getX(), e.getY());
-            IAtom sa = selectClosestAtom(e.getX(), e.getY());
+            IAtom sa = selectClosestAtom(e.getX() - (float)panX, e.getY() - (float)panY);
             if(sa == null)
                 return;
             selectedAtom = (MoleculeAtom)sa;
@@ -604,28 +645,15 @@ public class MoleRenderer2D extends View
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
     {
-        float lastScaleFactor = 0;
-
         @Override
         public boolean onScale(ScaleGestureDetector detector)
         {
-//            scaleFactor *= detector.getScaleFactor();
-//            scaleFactor = Math.max(1, Math.min(scaleFactor, 1.2f));
-//
-//            scaleMoles();
-//
-//            postInvalidate();
+            Log.i("Stuff", "Scalling");
+            scaleFactor *= detector.getScaleFactor();
+            scaleFactor = Math.max(0.3f, Math.min(scaleFactor, 1.5f));
+
+            postInvalidate();
             return true;
-        }
-
-
-        private void scaleMoles()
-        {
-            for (IAtomContainer mole: molecules.values())
-            {
-                Point2d geoCenter = new Point2d(GeometryUtil.get2DCenter(mole));
-                ((Molecule)mole).scaleMolecule(scaleFactor);
-            }
         }
 
     }
