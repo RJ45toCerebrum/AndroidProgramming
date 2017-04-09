@@ -21,6 +21,7 @@ import java.util.Stack;
 public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener
 {
+
     private MoleRenderer2D moleRenderer;
     private HashMap<String, ImageButton> actionButtons;
     private SearchMoleDialog diag;
