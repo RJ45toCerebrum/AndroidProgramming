@@ -41,16 +41,12 @@ import javax.vecmath.Vector2d;
 
 public class MoleRenderer2D extends View
 {
-    public static int maxAtoms = 30;
-    public static int maxSelectedAtoms = 10;
-
     MainActivity moleculeActivity;
 
     // fields for Atom's
     int numCreatedAtoms = 0;
     int numCreatedBonds = 0;
     int numCreatedMolecules = 0;
-    HashMap<String, MoleculeAtom> atoms = new HashMap<>();
     Queue<MoleculeAtom> atomSelectionQ = new LinkedList<>();
 
     HashMap<String, Molecule> molecules = new HashMap<>();
@@ -137,7 +133,7 @@ public class MoleRenderer2D extends View
 
     public void addAtom(Elements atom)
     {
-        if(atoms.size() < maxAtoms)
+        if(numCreatedAtoms < moleculeActivity.maxAtoms)
         {
             atomSelectionQ.clear();
             numCreatedAtoms++;
@@ -145,7 +141,7 @@ public class MoleRenderer2D extends View
             MoleculeAtom newAtom = new MoleculeAtom(atom);
             newAtom.setID("atom"+String.valueOf(numCreatedAtoms));
             newAtom.setPoint2d(new Point2d(panX, panY));
-            atoms.put(newAtom.getID(), newAtom);
+            moleculeActivity.putAtom(newAtom);
             rendererBitmap = null;
 
             List<String> ids = new ArrayList<>();
@@ -169,8 +165,8 @@ public class MoleRenderer2D extends View
             return;
         }
 
-        atoms.remove(a1.getID());
-        atoms.remove(a2.getID());
+        moleculeActivity.delAtom(a1.getID());
+        moleculeActivity.delAtom(a2.getID());
 
         Molecule mole;
         // check if atom one is already a part of a molecule
@@ -239,7 +235,7 @@ public class MoleRenderer2D extends View
         for (IAtom a: atomSelectionQ)
         {
             MoleculeAtom atom = (MoleculeAtom)a;
-            atoms.remove(atom.getID());
+            moleculeActivity.delAtom(atom.getID());
 
             for(Molecule mole : molecules.values())
             {
@@ -259,29 +255,30 @@ public class MoleRenderer2D extends View
 
     public void undoAdd(List<String> objIDs, Class<?> classType)
     {
-        if(classType == MoleculeAtom.class)
-        {
-            for (String id: objIDs)
-            {
-                MoleculeAtom a = atoms.get(id);
-                if(a != null)
-                {
-                    Molecule m = a.getMolecule();
-                    if(m != null)
-                        m.removeAtom(a);
-
-                    atoms.remove(id);
-                }
-            }
-        }
-        else if(classType == Molecule.class)
-        {
-            for (String id: objIDs)
-                molecules.remove(id);
-        }
-
-        rendererBitmap = null;
-        postInvalidate();
+        Log.e("Implementation", "Not implemented yet");
+//        if(classType == MoleculeAtom.class)
+//        {
+//            for (String id: objIDs)
+//            {
+//                MoleculeAtom a = atoms.get(id);
+//                if(a != null)
+//                {
+//                    Molecule m = a.getMolecule();
+//                    if(m != null)
+//                        m.removeAtom(a);
+//
+//                    atoms.remove(id);
+//                }
+//            }
+//        }
+//        else if(classType == Molecule.class)
+//        {
+//            for (String id: objIDs)
+//                molecules.remove(id);
+//        }
+//
+//        rendererBitmap = null;
+//        postInvalidate();
     }
 
     void sendAction(Action.ActionType actionType, List<String> objID, Class<?> classType)
@@ -321,17 +318,10 @@ public class MoleRenderer2D extends View
         return v;
     }
 
-    // DelETE
-    private void printAtomPos()
-    {
-        for (IAtom a: atoms.values())
-            Log.i("Atom Pos", a.getPoint2d().toString());
-    }
-
     void drawAtoms(Canvas canvas)
     {
         // for individually created atoms
-        for (Atom a: atoms.values())
+        for (Atom a: moleculeActivity.getAtoms())
         {
             Point2d aPoint = a.getPoint2d();
             float x = (float)(aPoint.getX());
@@ -450,6 +440,7 @@ public class MoleRenderer2D extends View
             Log.i("Bitmap", "Drawing");
             canvas.drawBitmap(rendererBitmap, 0, getTop(), atomPaint);
         }
+
         canvas.restore();
     }
 
@@ -488,7 +479,7 @@ public class MoleRenderer2D extends View
                 // Dragging
                 if(selectedAtom == null && selectedMolecule == null)
                 {
-                    for (IAtom a: atoms.values()) {
+                    for (IAtom a: moleculeActivity.getAtoms()) {
                         Point2d atomPoint = a.getPoint2d();
                         atomPoint.setX(atomPoint.getX() + dx);
                         atomPoint.setY(atomPoint.getY() + dy);
@@ -580,7 +571,7 @@ public class MoleRenderer2D extends View
                 return;
             selectedAtom = (MoleculeAtom)sa;
             // add to the selection Q, if not null
-            if(atomSelectionQ.size() < maxSelectedAtoms)
+            if(atomSelectionQ.size() < MainActivity.maxSelectedAtoms)
                 if(!atomSelectionQ.contains(selectedAtom))
                     atomSelectionQ.add(selectedAtom);
         }
@@ -591,7 +582,7 @@ public class MoleRenderer2D extends View
             selectionPoint.set(xPos, yPos);
             IAtom closestAtom = null;
             double curShortestDistance = Double.MAX_VALUE;
-            for (Atom a: atoms.values())
+            for (Atom a: moleculeActivity.getAtoms())
             {
                 double distance = selectionPoint.distance(a.getPoint2d());
                 if(distance <= (minSelectionDistance * scaleFactor) && distance < curShortestDistance){

@@ -14,6 +14,7 @@ import android.widget.Toast;
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.interfaces.IBond;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -21,6 +22,11 @@ import java.util.Stack;
 public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener
 {
+    public static int maxAtoms = 30;
+    public static int maxSelectedAtoms = 10;
+
+    HashMap<String, MoleculeAtom> atoms = new HashMap<>();
+    HashMap<String, Molecule> molecules = new HashMap<>();
 
     private MoleRenderer2D moleRenderer;
     private HashMap<String, ImageButton> actionButtons;
@@ -174,6 +180,18 @@ public class MainActivity extends AppCompatActivity
         actionButtons.put("undoButton", undoButton);
     }
 
+    public void putAtom(MoleculeAtom ma){
+        atoms.put(ma.getID(), ma);
+    }
+
+    public Collection<MoleculeAtom> getAtoms(){
+        return atoms.values();
+    }
+
+    public void delAtom(String key){
+        atoms.remove(key);
+    }
+
     public void addAction(Action action) {
         actions.push(action);
     }
@@ -184,5 +202,4 @@ public class MainActivity extends AppCompatActivity
         AtomButton atomButton = (AtomButton)v;
         moleRenderer.addAtom(atomButton.getElement());
     }
-
 }
