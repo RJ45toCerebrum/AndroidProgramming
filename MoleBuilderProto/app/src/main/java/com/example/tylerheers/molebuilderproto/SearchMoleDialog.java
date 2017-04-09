@@ -162,9 +162,9 @@ public class SearchMoleDialog extends DialogFragment
                         a diff atom. Add atom into the second place of the MoleculeAtom[]
 
          */
-        int numCreatedAtoms = renderer2D.getNumCreatedAtoms() + 1;
-        int numCreatedBonds = renderer2D.getNumCreatedBonds() + 1;
-        int numCreatedMolecules = renderer2D.getNumCreatedMolecules() + 1;
+        int numCreatedAtoms = MainActivity.getAtomCount() + 1;
+        int numCreatedBonds = MainActivity.getBondCount() + 1;
+        int numCreatedMolecules = MainActivity.getMoleculeCount() + 1;
         for (int i = 0; i < container.getAtomCount(); i++)
         {
             IAtom a = container.getAtom(i);

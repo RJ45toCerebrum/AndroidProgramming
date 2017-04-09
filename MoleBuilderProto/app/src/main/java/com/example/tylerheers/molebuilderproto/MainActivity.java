@@ -25,8 +25,11 @@ public class MainActivity extends AppCompatActivity
     public static int maxAtoms = 30;
     public static int maxSelectedAtoms = 10;
 
-    HashMap<String, MoleculeAtom> atoms = new HashMap<>();
-    HashMap<String, Molecule> molecules = new HashMap<>();
+    private static HashMap<String, MoleculeAtom> atoms = new HashMap<>();
+    private static HashMap<String, Molecule> molecules = new HashMap<>();
+    private static int numCreatedAtoms = 0;
+    private static int numCreatedBonds = 0;
+    private static int numCreatedMolecules = 0;
 
     private MoleRenderer2D moleRenderer;
     private HashMap<String, ImageButton> actionButtons;
@@ -154,7 +157,8 @@ public class MainActivity extends AppCompatActivity
         });
 
         ImageButton undoButton = (ImageButton)findViewById(R.id.undoActionButton);
-        undoButton.setOnClickListener(new View.OnClickListener() {
+        undoButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View v)
             {
@@ -180,17 +184,71 @@ public class MainActivity extends AppCompatActivity
         actionButtons.put("undoButton", undoButton);
     }
 
-    public void putAtom(MoleculeAtom ma){
-        atoms.put(ma.getID(), ma);
+    // Statics
+    public static boolean putAtom(MoleculeAtom ma)
+    {
+        if(ma != null) {
+            numCreatedAtoms++;
+            atoms.put(ma.getID(), ma);
+            return true;
+        }
+
+        return false;
     }
 
-    public Collection<MoleculeAtom> getAtoms(){
+    public static Collection<MoleculeAtom> getAtoms(){
         return atoms.values();
     }
 
-    public void delAtom(String key){
-        atoms.remove(key);
+    public static boolean delAtom(String key)
+    {
+        if(atoms.remove(key) != null) {
+            numCreatedAtoms--;
+            return true;
+        }
+
+        return false;
     }
+
+    public static boolean putMolecule(Molecule mole)
+    {
+        if(mole != null) {
+            numCreatedMolecules++;
+            molecules.put(mole.getID(), mole);
+            return true;
+        }
+
+        return false;
+    }
+
+    public static Collection<Molecule> getMolecules() {
+        return molecules.values();
+    }
+
+    public static boolean delMolecule(String key)
+    {
+        if(molecules.remove(key) != null)
+            return true;
+
+        return false;
+    }
+
+    public static void addBondCount(int count) {
+        numCreatedBonds += count;
+    }
+    public static int getBondCount() {return numCreatedBonds;}
+
+    public static void addAtomCount(int count){
+        numCreatedAtoms += count;
+    }
+    public static int getAtomCount() {return numCreatedAtoms;}
+
+    public static void addMoleculeCount(int count){
+        numCreatedMolecules += count;
+    }
+    public static Molecule getMolecule(String key){return  molecules.get(key); }
+    public static int getMoleculeCount() {return numCreatedMolecules; }
+    // end statics
 
     public void addAction(Action action) {
         actions.push(action);
