@@ -73,10 +73,12 @@ public class MoleRenderer2D extends View
     // rendering
     Bitmap rendererBitmap;
     CountDownTimer screenShotTimer;
-    long timeToScreenShot = 100;       // milli-secs
+    long timeToScreenShot = 500;       // milli-secs
 
     double dx, dy;
     double panX, panY;
+    protected float focusX;
+    protected float focusY;
 
 
     public MoleRenderer2D(Context context){
@@ -439,7 +441,7 @@ public class MoleRenderer2D extends View
         canvas.save();
         if (rendererBitmap == null)
         {
-            canvas.scale(scaleFactor, scaleFactor);
+            canvas.scale(scaleFactor, scaleFactor, focusX, focusY);
             drawAtoms(canvas);
             drawMolecules(canvas);
             drawBonds(canvas);
@@ -517,14 +519,11 @@ public class MoleRenderer2D extends View
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener
     {
-        float minSelectionDistance = 100;
+        float minSelectionDistance = 100 + atomCircleRadius;
         Point2d selectionPoint = new Point2d(0,0);
 
         @Override
         public boolean onDown(MotionEvent e) {
-            printAtomPos();
-            Log.i("Pan Amount", String.valueOf(panX) + " , " + String.valueOf(panY));
-            Log.i("Selction Point", String.valueOf(e.getX()) + " , " + String.valueOf(e.getY()));
             selection(e);
             return true;
         }
@@ -574,7 +573,9 @@ public class MoleRenderer2D extends View
 
         private void selection(MotionEvent e)
         {
-            IAtom sa = selectClosestAtom(e.getX() - (float)panX, e.getY() - (float)panY);
+            float x = (e.getX() - (float)panX);
+            float y = (e.getY() - (float)panY);
+            IAtom sa = selectClosestAtom(x, y);
             if(sa == null)
                 return;
             selectedAtom = (MoleculeAtom)sa;
@@ -593,7 +594,7 @@ public class MoleRenderer2D extends View
             for (Atom a: atoms.values())
             {
                 double distance = selectionPoint.distance(a.getPoint2d());
-                if(distance <= minSelectionDistance && distance < curShortestDistance){
+                if(distance <= (minSelectionDistance * scaleFactor) && distance < curShortestDistance){
                     closestAtom = a;
                     curShortestDistance = distance;
                 }
@@ -605,7 +606,7 @@ public class MoleRenderer2D extends View
                     continue;
 
                 double distance = selectionPoint.distance(a.getPoint2d());
-                if(distance <= minSelectionDistance && distance < curShortestDistance){
+                if(distance <= (minSelectionDistance * scaleFactor) && distance < curShortestDistance){
                     closestAtom = a;
                     curShortestDistance = distance;
                 }
@@ -651,6 +652,9 @@ public class MoleRenderer2D extends View
             Log.i("Stuff", "Scalling");
             scaleFactor *= detector.getScaleFactor();
             scaleFactor = Math.max(0.3f, Math.min(scaleFactor, 1.5f));
+
+            focusX = detector.getFocusX ();
+            focusY = detector.getFocusY ();
 
             postInvalidate();
             return true;
