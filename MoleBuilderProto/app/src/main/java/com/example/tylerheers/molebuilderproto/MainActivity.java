@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.interfaces.IBond;
+import org.rajawali3d.view.ISurface;
+import org.rajawali3d.view.SurfaceView;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,7 +33,10 @@ public class MainActivity extends AppCompatActivity
     private static int numCreatedBonds = 0;
     private static int numCreatedMolecules = 0;
 
+    private RelativeLayout canvasLayout;
+    SurfaceView surfView;
     private MoleRenderer2D moleRenderer;
+    private MoleRenderer3D moleRenderer3D;
     private HashMap<String, ImageButton> actionButtons;
     private SearchMoleDialog diag;
 
@@ -57,7 +62,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        RelativeLayout canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
+        canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
         moleRenderer = new MoleRenderer2D(this);
         canvasLayout.addView(moleRenderer);
 
@@ -174,6 +179,24 @@ public class MainActivity extends AppCompatActivity
                     case Manipulation:
                         break;
 
+                }
+            }
+        });
+
+        moleRenderer3D = new MoleRenderer3D(this);
+        surfView = new SurfaceView(this);
+        surfView.setFrameRate(60);
+        surfView.setRenderMode(ISurface.RENDERMODE_WHEN_DIRTY);
+
+        ImageButton to3DButton = (ImageButton) findViewById(R.id.to3DButton);
+        to3DButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                canvasLayout.removeAllViews();
+                if(moleRenderer3D != null) {
+                    canvasLayout.addView(surfView);
                 }
             }
         });
