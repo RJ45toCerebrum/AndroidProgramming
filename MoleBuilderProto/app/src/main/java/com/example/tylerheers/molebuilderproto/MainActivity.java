@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity
 
     private static HashMap<String, MoleculeAtom> atoms = new HashMap<>();
     private static HashMap<String, Molecule> molecules = new HashMap<>();
+    public static Molecule selectedMolecule = null;    // mole that is rendered for 3D rendering
     private static int numCreatedAtoms = 0;
     private static int numCreatedBonds = 0;
     private static int numCreatedMolecules = 0;
@@ -194,6 +195,13 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
+                if(MainActivity.selectedMolecule == null) {
+                    Toast.makeText(MainActivity.this,
+                            "Must have a Molecule selected to Render in 3D",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 canvasLayout.removeAllViewsInLayout();
                 moleRenderer = null;
                 initRenderer3D();

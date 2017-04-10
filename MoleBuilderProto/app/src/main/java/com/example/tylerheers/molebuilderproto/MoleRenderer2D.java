@@ -49,7 +49,7 @@ public class MoleRenderer2D extends View
     Queue<MoleculeAtom> atomSelectionQ = new LinkedList<>();
 
     MoleculeAtom selectedAtom = null;
-    IAtomContainer selectedMolecule = null;
+    //Molecule selectedMolecule = null;
     float atomCircleRadius = 55.0f;
     float textSize = 60.0f;
 
@@ -168,6 +168,9 @@ public class MoleRenderer2D extends View
         if(a1.isInMolecule())
         {
             mole = a1.getMolecule();
+            if(alreadyBonded(mole, a1, a2))
+                return false;
+
             Molecule atom2Mole = a2.getMolecule();
             if(atom2Mole != null)
                 mole.addMolecule(atom2Mole);
@@ -203,6 +206,22 @@ public class MoleRenderer2D extends View
         atomSelectionQ.clear();
         rendererBitmap = null;
         postInvalidate();
+
+        return true;
+    }
+
+    private boolean alreadyBonded(Molecule m, MoleculeAtom a1, MoleculeAtom a2)
+    {
+        try
+        {
+            IBond b = m.getBond(a1, a2);
+            if(b == null)
+                return false;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
 
         return true;
     }
@@ -468,13 +487,13 @@ public class MoleRenderer2D extends View
                         atomPoint.setY(atomPoint.getY() + dy);
                     }
                 }
-                if (selectedMolecule != null) {
+                if (MainActivity.selectedMolecule != null) {
                     Point2d newPoint = new Point2d(event.getX(), event.getY());
-                    GeometryUtil.translate2DCenterTo(selectedMolecule, newPoint);
+                    GeometryUtil.translate2DCenterTo(MainActivity.selectedMolecule, newPoint);
                 }
 
-                // Dragging
-                if(selectedAtom == null && selectedMolecule == null)
+                // Dragging; pan by translating atoms; No difference
+                if(selectedAtom == null && MainActivity.selectedMolecule == null)
                 {
                     for (IAtom a: MainActivity.getAtoms()) {
                         Point2d atomPoint = a.getPoint2d();
@@ -521,7 +540,7 @@ public class MoleRenderer2D extends View
         {
             atomSelectionQ.clear();
             selectedAtom = null;
-            selectedMolecule = null;
+            MainActivity.selectedMolecule = null;
 
             return true;
         }
@@ -535,26 +554,11 @@ public class MoleRenderer2D extends View
                 Molecule mole = alreadySelectedAtom.getMolecule();
                 if(mole != null)
                 {
+                    MainActivity.selectedMolecule = mole;
                     for (IAtom atom: mole.atoms()) {
                         if(atom != alreadySelectedAtom || !atomSelectionQ.contains(atom))
                             atomSelectionQ.add((MoleculeAtom) atom);
                     }
-
-                     //Testing here
-//                    try {
-//                        ModelBuilder3D builder3D = ModelBuilder3D.getInstance(DefaultChemObjectBuilder.getInstance());
-//                        IAtomContainer con = builder3D.generate3DCoordinates(mole, false);
-//                        for (IAtom newAtom: con.atoms()) {
-//                            Log.d("new atom", newAtom.getPoint3d().toString());
-//                        }
-//                    }
-//                    catch (CDKException ex) {
-//                        Log.i("Building 3d exception", ex.getMessage());
-//                    }
-//                    catch (Exception io){
-//                        Log.i("Clone or IO exception", io.getMessage());
-//                    }
-                     //end testing
                 }
             }
         }
