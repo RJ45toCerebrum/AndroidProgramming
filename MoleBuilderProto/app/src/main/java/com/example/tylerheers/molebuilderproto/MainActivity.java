@@ -3,9 +3,8 @@ package com.example.tylerheers.molebuilderproto;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -37,12 +36,12 @@ public class MainActivity extends AppCompatActivity
     SurfaceView surfView;
     private MoleRenderer2D moleRenderer;
     private MoleRenderer3D moleRenderer3D;
-    private HashMap<String, ImageButton> actionButtons;
+    private HashMap<Integer, ImageButton> actionButtons;
     private SearchMoleDialog diag;
 
     // TODO: implement undo data structure and find out better way
     private Stack<Action> actions = new Stack<>();
-    private ImageButton undoButton;
+    //private ImageButton undoButton;
 
 
     @Override
@@ -62,12 +61,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
-        moleRenderer = new MoleRenderer2D(this);
-        canvasLayout.addView(moleRenderer);
-
-        undoButton = (ImageButton)findViewById(R.id.undoActionButton);
-
+        initRenderer2D();
         initAtomButtonList();
         initModeButtons();
     }
@@ -183,10 +177,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        moleRenderer3D = new MoleRenderer3D(this);
-        surfView = new SurfaceView(this);
-        surfView.setFrameRate(60);
-        surfView.setRenderMode(ISurface.RENDERMODE_WHEN_DIRTY);
+        init3DButton();
+
+        actionButtons.put(R.id.singleBondButton, singleBondButton);
+        actionButtons.put(R.id.doubleBondButton, doubleBondButton);
+        actionButtons.put(R.id.tripleBondButton, tripleBondButton);
+        actionButtons.put(R.id.undoActionButton, undoButton);
+    }
+
+    private void init3DButton()
+    {
 
         ImageButton to3DButton = (ImageButton) findViewById(R.id.to3DButton);
         to3DButton.setOnClickListener(new View.OnClickListener()
@@ -194,17 +194,40 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                canvasLayout.removeAllViews();
-                if(moleRenderer3D != null) {
+                canvasLayout.removeAllViewsInLayout();
+                moleRenderer = null;
+                initRenderer3D();
+                if(surfView != null)
                     canvasLayout.addView(surfView);
-                }
             }
         });
 
-        actionButtons.put("singleBondButton", singleBondButton);
-        actionButtons.put("doubleBondButton", doubleBondButton);
-        actionButtons.put("tripleBondButton", tripleBondButton);
-        actionButtons.put("undoButton", undoButton);
+        actionButtons.put(R.id.to3DButton, to3DButton);
+    }
+
+    private void initRenderer2D()
+    {
+        canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
+        moleRenderer = new MoleRenderer2D(this);
+        canvasLayout.addView(moleRenderer);
+    }
+
+    private void initRenderer3D()
+    {
+        moleRenderer3D = new MoleRenderer3D(this);
+        surfView = new SurfaceView(this);
+        surfView.setRenderMode(ISurface.RENDERMODE_WHEN_DIRTY);
+        surfView.setSurfaceRenderer(moleRenderer3D);
+
+        surfView.setOnTouchListener(new View.OnTouchListener()
+        {
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                moleRenderer3D.onTouchEvent(event);
+                return true; //processed
+            }
+        });
     }
 
     // Statics
@@ -218,11 +241,9 @@ public class MainActivity extends AppCompatActivity
 
         return false;
     }
-
     public static Collection<MoleculeAtom> getAtoms(){
         return atoms.values();
     }
-
     public static boolean delAtom(String key)
     {
         if(atoms.remove(key) != null) {
@@ -243,11 +264,9 @@ public class MainActivity extends AppCompatActivity
 
         return false;
     }
-
     public static Collection<Molecule> getMolecules() {
         return molecules.values();
     }
-
     public static boolean delMolecule(String key)
     {
         if(molecules.remove(key) != null)
