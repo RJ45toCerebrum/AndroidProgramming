@@ -13,10 +13,13 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Toast;
 
+import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.geometry.GeometryUtil;
 import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.io.formats.SMILESFormat;
+import org.openscience.cdk.smiles.SmiFlavor;
+import org.openscience.cdk.smiles.SmilesGenerator;
 import org.rajawali3d.Geometry3D;
 import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.materials.Material;
@@ -34,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.vecmath.Point2d;
+import javax.vecmath.Point3d;
 
 /**
  * Created by Tyler on 4/9/2017.
@@ -43,6 +47,7 @@ import javax.vecmath.Point2d;
 class MoleRenderer3D extends Renderer
 {
     IAtomContainer molecule;
+    private boolean is3D = false;
     private SparseArray<Material> materials;
     private Context context;
     private Scene scene;
@@ -50,16 +55,24 @@ class MoleRenderer3D extends Renderer
 
     private DirectionalLight directionalLight;
     private org.rajawali3d.cameras.Camera cam;
-    float xPos, yPos;
+    private float xPos, yPos;
     private float scaleFactor = 60;
     private boolean isScaling = false;
-    private double totalTime;
+
 
     private ScaleGestureDetector scaleDetector;
 
-    MoleRenderer3D(Context context)
+    MoleRenderer3D(Context context, IAtomContainer mole3d) throws Exception
     {
         super(context);
+
+        if(mole3d == null)
+            throw new Exception("Molecule must be 3 Dimensional");
+
+        if(GeometryUtil.has3DCoordinates(mole3d))
+            is3D = true;
+
+        molecule = mole3d;
         this.context = context;
         this.setFrameRate(30);
 
@@ -76,13 +89,13 @@ class MoleRenderer3D extends Renderer
             xPos = event.getX();
             yPos = event.getY();
         }
-        else if(event.getAction() == MotionEvent.ACTION_MOVE && !isScaling)
+        else if(actionID == MotionEvent.ACTION_MOVE && !isScaling)
         {
             float dx = (event.getX() - xPos);
             float dy = (event.getY() - yPos);
 //            GeometryUtil.rotate(molecule, new Point2d(0,0), dx * 0.001f);
-            rotateMolecule(dx *0.1, dy);
-            updateAtomPositions();
+            //rotateMolecule(dx *0.1, dy);
+            //updateAtomPositions();
         }
 
         isScaling = false;
@@ -98,14 +111,6 @@ class MoleRenderer3D extends Renderer
     public void onRender(final long elapsed, final double deltaTime)
     {
         super.onRender(elapsed, deltaTime);
-//        totalTime += deltaTime;
-//        Log.i("delta", String.valueOf(deltaTime));
-//        double newX = Math.cos(totalTime) * 5;
-//        double newZ = Math.sin(totalTime) * 5;
-//        Log.i("X", String.valueOf(newX));
-//        Log.i("Z", String.valueOf(newZ));
-
-        //cam.setPosition(newX, cam.getY(), newZ);
     }
 
 
@@ -116,8 +121,6 @@ class MoleRenderer3D extends Renderer
         initDirLight();
         initColorMap();
 
-        molecule = centerMolecule();
-        GeometryUtil.scaleMolecule(molecule, 0.0075f);
         atomGeo = new ArrayList<>();
 
         // render mole center; for debugging
@@ -127,16 +130,54 @@ class MoleRenderer3D extends Renderer
         scene.addChild(centerSphere);
         // end render center
 
-        for (IAtom a : molecule.atoms())
+        constructGeo();
+    }
+
+    private void constructGeo()
+    {
+        if(is3D)
         {
-            Point2d point = a.getPoint2d();
-            double x = point.getX();
-            double y = point.getY();
-            Sphere atom = new Sphere(0.2f, 10, 10);
-            atom.setPosition(x, y, 0);
-            atom.setMaterial(materials.get(Color.LTGRAY));
-            atomGeo.add(atom);
-            scene.addChild(atom);
+            for (IAtom a : molecule.atoms())
+            {
+                Point3d point = a.getPoint3d();
+                double x = point.getX();
+                double y = point.getY();
+                double z = point.getZ();
+                Sphere atom;
+                if (a.getSymbol().equals("H")) {
+                    atom = new Sphere(0.1f, 10, 10);
+                    atom.setMaterial(materials.get(Color.LTGRAY));
+                } else {
+                    atom = new Sphere(0.2f, 10, 10);
+                    atom.setMaterial(materials.get(Color.DKGRAY));
+                }
+
+                atom.setPosition(x, y, z);
+                atomGeo.add(atom);
+                scene.addChild(atom);
+            }
+        }
+        else
+        {
+            for (IAtom a : molecule.atoms())
+            {
+                Point2d point = a.getPoint2d();
+                double x = point.getX();
+                double y = point.getY();
+                Sphere atom;
+                if (a.getSymbol().equals("H"))
+                {
+                    atom = new Sphere(0.1f, 10, 10);
+                    atom.setMaterial(materials.get(Color.LTGRAY));
+                } else {
+                    atom = new Sphere(0.2f, 10, 10);
+                    atom.setMaterial(materials.get(Color.DKGRAY));
+                }
+
+                atom.setPosition(x, y, 0);
+                atomGeo.add(atom);
+                scene.addChild(atom);
+            }
         }
     }
 
@@ -164,7 +205,7 @@ class MoleRenderer3D extends Renderer
 
     private void initColorMap()
     {
-        materials = new SparseArray<>(7);
+        materials = new SparseArray<>(9);
         materials.put(Color.RED, createMaterial(Color.RED));
         materials.put(Color.GREEN, createMaterial(Color.GREEN));
         materials.put(Color.BLUE, createMaterial(Color.BLUE));
@@ -172,6 +213,14 @@ class MoleRenderer3D extends Renderer
         materials.put(Color.GRAY, createMaterial(Color.GRAY));
         materials.put(Color.YELLOW, createMaterial(Color.YELLOW));
         materials.put(Color.LTGRAY, createMaterial(Color.LTGRAY));
+        materials.put(Color.DKGRAY, createMaterial(Color.DKGRAY));
+        materials.put(Color.MAGENTA, createMaterial(Color.MAGENTA));
+    }
+
+    private int getColorID()
+    {
+        //TODO: implement getColorID in MoleRenderer3D
+        return 0;
     }
 
     private Material createMaterial(int color)
@@ -223,20 +272,11 @@ class MoleRenderer3D extends Renderer
         }
     }
 
-    private IAtomContainer centerMolecule()
+    private void centerMolecule()
     {
-        IAtomContainer m = null;
-        try
-        {
-            m = MainActivity.selectedMolecule.clone();
-            GeometryUtil.translate2DCenterTo(m, new Point2d(0,0));
-        }
-        catch (CloneNotSupportedException ex) {
-            Log.e("Clone Exception", ex.getMessage());
-        }
-
-        return m;
+        //Point3d point = GeometryUtil.get3DCenter(molecule);
     }
+
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
     {

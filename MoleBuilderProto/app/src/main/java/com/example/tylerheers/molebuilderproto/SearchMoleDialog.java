@@ -31,17 +31,18 @@ import java.util.HashMap;
 
 /**
  * Created by Tyler on 3/11/2017.
+ *
+ * Class for searching molecules from pubchem
  */
 
 public class SearchMoleDialog extends DialogFragment
-       implements IAsyncResult<String>,
+       implements IAsyncSignals<Float, String>,
        View.OnClickListener
 {
     PostRequest requestSDF;
     EditText searchText;
     RadioGroup radioGroup;
     MoleRenderer2D renderer2D;
-    MDLV2000Reader sdfReader;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
@@ -111,93 +112,28 @@ public class SearchMoleDialog extends DialogFragment
 
         if(renderer2D != null && results.length() > 0)
         {
-            InputStream inputStream = new ByteArrayInputStream(results.getBytes());
-            try
+            IAtomContainer con = SdfConverter.convertSDFString(results);
+            if(con != null)
             {
-                sdfReader = new MDLV2000Reader(inputStream);
-                IAtomContainer container = new AtomContainer();
-                container = sdfReader.read(container);
-                if(container != null)
-                {
-                    Molecule mole = convertAtomContainer(container);
-                    renderer2D.addMolecule(mole);
-                }
-            }
-            catch (CDKException ex) {
-                Log.d("Error Occurred", ex.getMessage());
-            }
+                Molecule mole = Molecule.convertAtomContainer(con);
+                if(mole == null)
+                    Toast.makeText(getActivity().getBaseContext(), "Sorry! Something went wrong molecule building",
+                                   Toast.LENGTH_LONG).show();
 
-            finally
-            {
-                try {
-                    sdfReader.close();
-                }
-                catch (IOException ex){
-                    Log.d("Error in IO", ex.getMessage());
-                }
+                renderer2D.addMolecule(mole);
             }
-
         }
 
         dismiss();
     }
 
-    private Molecule convertAtomContainer(IAtomContainer container)
+
+    public void onBackgroundUpdate(Float data)
     {
-        HashMap<IBond, MoleculeAtom[]> bondAtoms = new HashMap<>();
-        Molecule mole = new Molecule();
-
-        /*
-            they built it using IAtoms instead of MoleculeAtom
-            which is what is needed;
-            In order to perform the conversion:
-            1) for each of the atoms, we make a new MoleculeAtom which is passed into constructor
-            2) for each of the bonds connect to that atom:
-                a) place it into a hashmap with key as bond. Why? because when i go to the next atom
-                    then i can look up whether its already been added. I need to do this because
-                    a bond is always connected to more than one atom.
-                b) if no entry for the bond, then the algo has not seen it yet --> add it and put the
-                    current MoleculeAtom into the first place of the MoleAtom[] of hashmap
-                c) if there is an entry then this means we are at a bond but from the perspective of
-                        a diff atom. Add atom into the second place of the MoleculeAtom[]
-
-         */
-        int numCreatedAtoms = MainActivity.getAtomCount() + 1;
-        int numCreatedBonds = MainActivity.getBondCount() + 1;
-        int numCreatedMolecules = MainActivity.getMoleculeCount() + 1;
-        for (int i = 0; i < container.getAtomCount(); i++)
-        {
-            IAtom a = container.getAtom(i);
-            Elements e = MoleculeAtom.getElement(a);
-            MoleculeAtom ma = new MoleculeAtom(e, a);
-            ma.setID("atom"+ String.valueOf(numCreatedAtoms + i));
-            mole.addAtom(ma);
-            ma.setMolecule(mole);
-
-            for (IBond b: container.getConnectedBondsList(a))
-            {
-                ma.addBond(b.getOrder());
-                if(bondAtoms.containsKey(b)) {
-                    bondAtoms.get(b)[1] = ma;
-                }
-                else {
-                    MoleculeAtom[] conAtoms = new MoleculeAtom[2];
-                    conAtoms[0] = ma;
-                    bondAtoms.put(b, conAtoms);
-                }
-            }
-        }
-
-        for (IBond b: bondAtoms.keySet()) {
-            b.setAtoms(bondAtoms.get(b));
-            mole.addBond(b);
-            b.setID("bond"+String.valueOf(numCreatedBonds));
-            numCreatedBonds++;
-        }
-
-        mole.setID("mole"+String.valueOf(numCreatedMolecules));
-        return  mole;
+        if (data != null)
+            Log.i("Download Progress", data.toString());
     }
+
 
     public void setRenderer2D(MoleRenderer2D renderer2D){
         this.renderer2D = renderer2D;

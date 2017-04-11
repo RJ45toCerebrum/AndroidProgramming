@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="290dp"
         android:minHeight="540dp"
         android:orientation="horizontal"
         android:weightSum="1"
@@ -21,7 +21,7 @@
             android:layout_height="match_parent"
             android:weightSum="1"
             android:orientation="vertical"
-            android:background="#cbb7b7b7"
+            android:background="#cb787878"
             android:id="@+id/toolBarLayout">
 
             <ScrollView
@@ -55,28 +55,28 @@
 
                     <ImageButton
                         android:layout_width="match_parent"
-                        android:layout_height="70dp"
+                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/bond_single"
                         android:id="@+id/singleBondButton" />
 
                     <ImageButton
                         android:layout_width="match_parent"
-                        android:layout_height="70dp"
+                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/bond_double"
                         android:id="@+id/doubleBondButton" />
 
                     <ImageButton
                         android:layout_width="match_parent"
-                        android:layout_height="70dp"
+                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/bond_triple"
                         android:id="@+id/tripleBondButton" />
 
                     <ImageButton
                         android:layout_width="match_parent"
-                        android:layout_height="70dp"
+                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_delete_black_24dp"
                         android:id="@+id/deleteButton"/>
@@ -98,7 +98,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:background="#cbb7b7b7"
+        android:background="#cb787878"
         android:id="@+id/buttonLayout">
 
         <ImageButton
@@ -106,15 +106,13 @@
             android:layout_height="match_parent"
             android:minWidth="80dp"
             android:id="@+id/startMoleSearch"
-            android:src="@drawable/ic_search_white_24dp"
-            android:background="#FF969696"/>
+            android:src="@drawable/ic_search_white_24dp" />
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:minWidth="80dp"
             android:src="@drawable/ic_3d_rotation_white_24dp"
-            android:background="#969696"
             android:layout_marginLeft="35dp"
             android:id="@+id/to3DButton"/>
 
@@ -123,9 +121,19 @@
             android:layout_height="match_parent"
             android:minWidth="80dp"
             android:src="@drawable/ic_undo_white_24dp"
-            android:background="#969696"
             android:layout_marginLeft="35dp"
             android:id="@+id/undoActionButton" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:padding="5dp"
+            android:id="@+id/sceneInfoTextView"
+            android:background="@color/black"
+            android:textColor="@color/white"/>
+
 
     </LinearLayout>
 

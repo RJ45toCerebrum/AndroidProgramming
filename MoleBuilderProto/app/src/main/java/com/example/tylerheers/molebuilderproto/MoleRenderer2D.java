@@ -44,6 +44,7 @@ import javax.vecmath.Vector2d;
 public class MoleRenderer2D extends View
 {
     MainActivity moleculeActivity;
+    SceneContainer sceneContainer;
 
     // fields for Atom's
     Queue<MoleculeAtom> atomSelectionQ = new LinkedList<>();
@@ -96,6 +97,7 @@ public class MoleRenderer2D extends View
     private void init(Context con)
     {
         moleculeActivity = (MainActivity) con;
+        sceneContainer = SceneContainer.getInstance();
 
         atomPaint = new Paint();
         atomPaint.setColor(Color.BLACK);
@@ -127,16 +129,15 @@ public class MoleRenderer2D extends View
 
     public void addAtom(Elements atom)
     {
-        int atomCount = MainActivity.getAtomCount();
+        int atomCount = sceneContainer.getAtomCount();
         if(atomCount < MainActivity.maxAtoms)
         {
             atomSelectionQ.clear();
-            MainActivity.addAtomCount(1);
 
             MoleculeAtom newAtom = new MoleculeAtom(atom);
             newAtom.setID("atom"+String.valueOf(atomCount+1));
             newAtom.setPoint2d(new Point2d(panX, panY));
-            MainActivity.putAtom(newAtom);
+            sceneContainer.putAtom(newAtom);
             rendererBitmap = null;
 
             List<String> ids = new ArrayList<>();
@@ -160,9 +161,6 @@ public class MoleRenderer2D extends View
             return false;
         }
 
-        MainActivity.delAtom(a1.getID());
-        MainActivity.delAtom(a2.getID());
-
         Molecule mole;
         // check if atom one is already a part of a molecule
         if(a1.isInMolecule())
@@ -175,34 +173,31 @@ public class MoleRenderer2D extends View
             if(atom2Mole != null)
                 mole.addMolecule(atom2Mole);
             else
-                a2.setMolecule(mole);
+                mole.addAtom(a2);
+
         }
         else if(a2.isInMolecule())
         {
             mole = a2.getMolecule();
             mole.addAtom(a1);
-            a1.setMolecule(mole);
         }
         else
         {
             mole = new Molecule();
-            mole.setID("molecule"+String.valueOf(MainActivity.getMoleculeCount()));
+            mole.setID("molecule"+String.valueOf(sceneContainer.getMoleculeCount()));
             mole.addAtom(a1);
             mole.addAtom(a2);
-            a1.setMolecule(mole);
-            a2.setMolecule(mole);
+            sceneContainer.putMolecule(mole);
         }
 
         Bond newBond = new Bond(a1, a2);
         a1.addBond(order);
         a2.addBond(order);
         newBond.setOrder(order);
-        MainActivity.addBondCount(order.numeric());
-        MainActivity.addBondCount(1);
-        newBond.setID("bond"+String.valueOf( MainActivity.getBondCount() ));
+        newBond.setID("bond"+String.valueOf( sceneContainer.getBondCount() ));
         mole.addBond(newBond);
-        MainActivity.putMolecule(mole);
 
+        sceneContainer.updateSceneListeners(SceneContainer.SceneChangeType.BondNumber);
         atomSelectionQ.clear();
         rendererBitmap = null;
         postInvalidate();
@@ -233,32 +228,29 @@ public class MoleRenderer2D extends View
             normalizePositions(mole);
             GeometryUtil.translate2DCenterTo(mole, new Point2d(getWidth() + panX, getHeight() + panY));
 
-            MainActivity.putMolecule(mole);
+            sceneContainer.putMolecule(mole);
 
-            rendererBitmap = null;
-
-            MainActivity.addAtomCount(mole.getAtomCount());
-            MainActivity.addBondCount(mole.getBondCount());
-            MainActivity.addMoleculeCount(1);
-
+            // For undoing actions
             List<String> ids = new ArrayList<>();
             ids.add(mole.getID());
             sendAction(Action.ActionType.Add, ids, Molecule.class);
 
+            rendererBitmap = null;
             return true;
         }
 
         return false;
     }
 
+    // TODO: deleting bonds and adding bonds is still a bit sketchy with the numbers
     public void deleteSelected()
     {
         for (IAtom a: atomSelectionQ)
         {
             MoleculeAtom atom = (MoleculeAtom)a;
-            MainActivity.delAtom(atom.getID());
+            sceneContainer.delAtom(atom.getID());
 
-            for(Molecule mole : MainActivity.getMolecules())
+            for(Molecule mole : sceneContainer.getMolecules())
             {
                 if(mole.contains(atom))
                     mole.removeAtom(atom);
@@ -266,6 +258,7 @@ public class MoleRenderer2D extends View
         }
 
         rendererBitmap = null;
+        sceneContainer.updateSceneListeners(SceneContainer.SceneChangeType.All);
         postInvalidate();
     }
 
@@ -337,7 +330,7 @@ public class MoleRenderer2D extends View
     void drawAtoms(Canvas canvas)
     {
         // for individually created atoms
-        for (Atom a: MainActivity.getAtoms())
+        for (Atom a: sceneContainer.getAtoms())
         {
             Point2d aPoint = a.getPoint2d();
             float x = (float)(aPoint.getX());
@@ -372,7 +365,7 @@ public class MoleRenderer2D extends View
     void drawBonds(Canvas canvas)
     {
         // for each molecule
-        for (Molecule mole : MainActivity.getMolecules())
+        for (Molecule mole : sceneContainer.getMolecules())
         {
             // go through all bonds
             for (IBond b : mole.bonds())
@@ -419,7 +412,7 @@ public class MoleRenderer2D extends View
     void drawMolecules(Canvas canvas)
     {
         // draw each in atom container; for Molecules
-        for (Molecule m: MainActivity.getMolecules())
+        for (Molecule m: sceneContainer.getMolecules())
             drawAtoms(canvas, m);
 
         drawBonds(canvas);
@@ -487,20 +480,20 @@ public class MoleRenderer2D extends View
                         atomPoint.setY(atomPoint.getY() + dy);
                     }
                 }
-                if (MainActivity.selectedMolecule != null) {
+                if (sceneContainer.selectedMolecule != null) {
                     Point2d newPoint = new Point2d(event.getX(), event.getY());
-                    GeometryUtil.translate2DCenterTo(MainActivity.selectedMolecule, newPoint);
+                    GeometryUtil.translate2DCenterTo(sceneContainer.selectedMolecule, newPoint);
                 }
 
                 // Dragging; pan by translating atoms; No difference
-                if(selectedAtom == null && MainActivity.selectedMolecule == null)
+                if(selectedAtom == null && sceneContainer.selectedMolecule == null)
                 {
-                    for (IAtom a: MainActivity.getAtoms()) {
+                    for (IAtom a: sceneContainer.getAtoms()) {
                         Point2d atomPoint = a.getPoint2d();
                         atomPoint.setX(atomPoint.getX() + dx);
                         atomPoint.setY(atomPoint.getY() + dy);
                     }
-                    for (Molecule m: MainActivity.getMolecules()) {
+                    for (Molecule m: sceneContainer.getMolecules()) {
                         for (IAtom a: m.atoms()) {
                             Point2d atomPoint = a.getPoint2d();
                             atomPoint.setX(atomPoint.getX() + dx);
@@ -540,13 +533,13 @@ public class MoleRenderer2D extends View
         {
             atomSelectionQ.clear();
             selectedAtom = null;
-            MainActivity.selectedMolecule = null;
+            sceneContainer.selectedMolecule = null;
 
             return true;
         }
 
-        public void onLongPress(MotionEvent e) {
-
+        public void onLongPress(MotionEvent e)
+        {
             IAtom a = selectClosestAtom(e.getX(), e.getY());
             if(a != null)
             {
@@ -554,7 +547,7 @@ public class MoleRenderer2D extends View
                 Molecule mole = alreadySelectedAtom.getMolecule();
                 if(mole != null)
                 {
-                    MainActivity.selectedMolecule = mole;
+                    sceneContainer.selectedMolecule = mole;
                     for (IAtom atom: mole.atoms()) {
                         if(atom != alreadySelectedAtom || !atomSelectionQ.contains(atom))
                             atomSelectionQ.add((MoleculeAtom) atom);
@@ -583,7 +576,7 @@ public class MoleRenderer2D extends View
             selectionPoint.set(xPos, yPos);
             IAtom closestAtom = null;
             double curShortestDistance = Double.MAX_VALUE;
-            for (Atom a: moleculeActivity.getAtoms())
+            for (Atom a: sceneContainer.getAtoms())
             {
                 double distance = selectionPoint.distance(a.getPoint2d());
                 if(distance <= (minSelectionDistance * scaleFactor) && distance < curShortestDistance){
@@ -591,7 +584,7 @@ public class MoleRenderer2D extends View
                     curShortestDistance = distance;
                 }
             }
-            for (Molecule mole: moleculeActivity.getMolecules())
+            for (Molecule mole: sceneContainer.getMolecules())
             {
                 IAtom a = GeometryUtil.getClosestAtom(xPos, yPos, mole);
                 if (a == null)

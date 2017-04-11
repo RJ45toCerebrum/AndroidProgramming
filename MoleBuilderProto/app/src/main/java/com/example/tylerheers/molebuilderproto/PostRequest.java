@@ -6,15 +6,14 @@ import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * Created by tylerheers on 2/27/17.
+ * This is for making Http requests to download files as strings
  */
 
 class PostRequest extends AsyncTask<String, String, String>
@@ -34,10 +33,10 @@ class PostRequest extends AsyncTask<String, String, String>
     public String doInBackground(String... params)
     {
         String url = params[0];
-        return DownloadSDF(url);
+        return Download(url);
     }
 
-    private static String DownloadSDF(String urlString)
+    private static String Download(String urlString)
     {
         String resultToDisplay = "";
 
@@ -73,36 +72,6 @@ class PostRequest extends AsyncTask<String, String, String>
         return resultToDisplay;
     }
 
-    private static InputStream OpenHttpConnection(String urlString)
-            throws IOException
-    {
-        InputStream in = null;
-        int response = -1;
-
-        URL url = new URL(urlString);
-        URLConnection conn = url.openConnection();
-
-        if (!(conn instanceof HttpURLConnection))
-            throw new IOException("Not an HTTP connection");
-
-        try{
-            HttpURLConnection httpConn = (HttpURLConnection) conn;
-            httpConn.setAllowUserInteraction(false);
-            httpConn.setInstanceFollowRedirects(true);
-            httpConn.setRequestMethod("GET");
-            httpConn.connect();
-
-            response = httpConn.getResponseCode();
-            if (response == HttpURLConnection.HTTP_OK) {
-                in = httpConn.getInputStream();
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new IOException("Error connecting");
-        }
-        return in;
-    }
 
     @Override
     public void onPostExecute(String result)

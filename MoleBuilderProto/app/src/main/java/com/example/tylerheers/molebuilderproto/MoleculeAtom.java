@@ -17,7 +17,7 @@ class MoleculeAtom extends Atom
     private boolean isInMolecule = false;
     private int numBonds = 0;
     private int numConnectedAtoms;
-    public static final int maxNumBonds = 10;
+    static final int maxNumBonds = 10;
 
 
     MoleculeAtom(Elements e){
@@ -228,7 +228,6 @@ class MoleculeAtom extends Atom
         return e;
     }
 
-    //TODO: this is not correct, though it gets the most important atoms right
     static int getMaxNumBonds(Elements e) {
         return maxNumBonds;
     }
