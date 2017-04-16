@@ -1,6 +1,6 @@
 # Overview
 
-My final Project will be to render molecules in 2D and 3D forms. I will include:
+Render molecules in 2D and 3D forms. I will include:
 1) Ability to add any type of element from the periodic table
 2) Create new Molecules by making bonds between user created atoms
 3) Ability to translate and rotate
