@@ -195,7 +195,7 @@ public class MoleRenderer2D extends View
         a1.addBond(order);
         a2.addBond(order);
         newBond.setOrder(order);
-        newBond.setID("bond"+String.valueOf( sceneContainer.getBondCount() ));
+        newBond.setID("bond" + String.valueOf( sceneContainer.getBondCount() ));
         mole.addBond(newBond);
 
         sceneContainer.updateSceneListeners(SceneContainer.SceneChangeType.BondNumber);

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity
 
         initRenderer2D();
         initAtomButtonList();
+        initPeriodicTableButton();
         initModeButtons();
     }
 
@@ -136,6 +138,27 @@ public class MainActivity extends AppCompatActivity
             button.setClickable(true);
             button.setOnClickListener(this);
         }
+
+    }
+
+    private void initPeriodicTableButton()
+    {
+        LinearLayout atomButtonLayout = (LinearLayout)findViewById(R.id.atomScrollViewLayout);
+        ImageButton periodicTableButton = new ImageButton(this);
+        periodicTableButton.setImageResource(R.drawable.periodic_table);
+        periodicTableButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        periodicTableButton.setLayoutParams(atomButtonLayout.getLayoutParams());
+        periodicTableButton.getLayoutParams().height = 230;
+
+        atomButtonLayout.addView(periodicTableButton);
+        periodicTableButton.setClickable(true);
+        periodicTableButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PeriodicTable pt = PeriodicTable.newInstance(0);
+                pt.show(getFragmentManager(), "123");
+            }
+        });
     }
 
     private void initModeButtons()
