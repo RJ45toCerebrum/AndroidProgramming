@@ -1,40 +1,30 @@
 package com.example.tylerheers.molebuilderproto;
 
-import android.app.Notification;
 import android.content.Context;
 import android.graphics.Color;
-import android.opengl.Matrix;
-import android.support.annotation.Nullable;
-import android.util.Log;
 import android.util.SparseArray;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.View;
-import android.widget.Toast;
 
-import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.geometry.GeometryUtil;
 import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
-import org.openscience.cdk.io.formats.SMILESFormat;
-import org.openscience.cdk.smiles.SmiFlavor;
-import org.openscience.cdk.smiles.SmilesGenerator;
-import org.rajawali3d.Geometry3D;
+import org.openscience.cdk.interfaces.IBond;
 import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.math.Matrix4;
-import org.rajawali3d.math.Quaternion;
 import org.rajawali3d.math.vector.Vector3;
+import org.rajawali3d.primitives.Cylinder;
 import org.rajawali3d.primitives.Sphere;
 import org.rajawali3d.renderer.Renderer;
 import org.rajawali3d.scene.Scene;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
@@ -52,6 +42,7 @@ class MoleRenderer3D extends Renderer
     private Context context;
     private Scene scene;
     private List<Sphere> atomGeo;
+    private HashMap<IBond, Pair<Cylinder, IAtom[]>> bondGeo;
 
     private DirectionalLight directionalLight;
     private org.rajawali3d.cameras.Camera cam;
@@ -93,9 +84,8 @@ class MoleRenderer3D extends Renderer
         {
             float dx = (event.getX() - xPos);
             float dy = (event.getY() - yPos);
-//            GeometryUtil.rotate(molecule, new Point2d(0,0), dx * 0.001f);
-            //rotateMolecule(dx *0.1, dy);
-            //updateAtomPositions();
+            rotateMolecule(-dy * 0.1, -dx * 0.1);
+            updateGeoPositions();
         }
 
         isScaling = false;
@@ -121,7 +111,8 @@ class MoleRenderer3D extends Renderer
         initDirLight();
         initColorMap();
 
-        atomGeo = new ArrayList<>();
+        atomGeo = new ArrayList<>(molecule.getAtomCount());
+        bondGeo = new HashMap<>(molecule.getBondCount());
 
         // render mole center; for debugging
         Sphere centerSphere = new Sphere(0.05f, 10, 10);
@@ -130,55 +121,7 @@ class MoleRenderer3D extends Renderer
         scene.addChild(centerSphere);
         // end render center
 
-        constructGeo();
-    }
-
-    private void constructGeo()
-    {
-        if(is3D)
-        {
-            for (IAtom a : molecule.atoms())
-            {
-                Point3d point = a.getPoint3d();
-                double x = point.getX();
-                double y = point.getY();
-                double z = point.getZ();
-                Sphere atom;
-                if (a.getSymbol().equals("H")) {
-                    atom = new Sphere(0.1f, 10, 10);
-                    atom.setMaterial(materials.get(Color.LTGRAY));
-                } else {
-                    atom = new Sphere(0.2f, 10, 10);
-                    atom.setMaterial(materials.get(Color.DKGRAY));
-                }
-
-                atom.setPosition(x, y, z);
-                atomGeo.add(atom);
-                scene.addChild(atom);
-            }
-        }
-        else
-        {
-            for (IAtom a : molecule.atoms())
-            {
-                Point2d point = a.getPoint2d();
-                double x = point.getX();
-                double y = point.getY();
-                Sphere atom;
-                if (a.getSymbol().equals("H"))
-                {
-                    atom = new Sphere(0.1f, 10, 10);
-                    atom.setMaterial(materials.get(Color.LTGRAY));
-                } else {
-                    atom = new Sphere(0.2f, 10, 10);
-                    atom.setMaterial(materials.get(Color.DKGRAY));
-                }
-
-                atom.setPosition(x, y, 0);
-                atomGeo.add(atom);
-                scene.addChild(atom);
-            }
-        }
+        constructMoleculeGeo();
     }
 
     private void initCamera()
@@ -215,12 +158,31 @@ class MoleRenderer3D extends Renderer
         materials.put(Color.LTGRAY, createMaterial(Color.LTGRAY));
         materials.put(Color.DKGRAY, createMaterial(Color.DKGRAY));
         materials.put(Color.MAGENTA, createMaterial(Color.MAGENTA));
+        //materials.put();
     }
 
-    private int getColorID()
+    private int getColorID(String symbol)
     {
-        //TODO: implement getColorID in MoleRenderer3D
-        return 0;
+        switch (symbol)
+        {
+            case "H":
+                return Color.LTGRAY;
+            case "C":
+                return Color.DKGRAY;
+            case "N":
+                return Color.BLUE;
+            case "O":
+                return Color.RED;
+            case "F":
+                return Color.MAGENTA;
+            case "Cl":
+                return Color.GREEN;
+            case "S":
+                return Color.YELLOW;
+            default:
+                return Color.LTGRAY;
+
+        }
     }
 
     private Material createMaterial(int color)
@@ -232,51 +194,139 @@ class MoleRenderer3D extends Renderer
         return mat;
     }
 
-    @Nullable
+    private void constructMoleculeGeo()
+    {
+        Set<IBond> bonds = new HashSet<>(molecule.getBondCount());
+
+        if(is3D)
+        {
+            for (IAtom a : molecule.atoms())
+            {
+                Point3d point = a.getPoint3d();
+                double x = point.getX();
+                double y = point.getY();
+                double z = point.getZ();
+                Sphere atom = createAtom(getColorID(a.getSymbol()), 0.3f);
+                if(a.getSymbol().equals("H"))
+                    atom.setScale(0.2f);
+
+                atom.setPosition(x, y, z);
+
+                // bond creation
+                for (IAtom conAtom: molecule.getConnectedAtomsList(a))
+                {
+                    IBond bond = molecule.getBond(a, conAtom);
+                    if(bonds.contains(bond))
+                        continue;
+
+                    bonds.add(bond);
+                    Vector3 vect = getVectorBetween(point, conAtom.getPoint3d());
+                    Point3d bPoint = bond.get3DCenter();
+                    Cylinder bondGeo = createBond(0.05f, (float)vect.length(), bond.getOrder(), conAtom, a, bond);
+                    bondGeo.setPosition(bPoint.x, bPoint.y, bPoint.z);
+                    Point3d caP = conAtom.getPoint3d();
+                    bondGeo.setLookAt(caP.x, caP.y, caP.z);
+                }
+            }
+        }
+        // sometimes even 3D molecules only need 2D coordinates like C(triple_bond)N
+        else
+        {
+            for (IAtom a : molecule.atoms())
+            {
+                Point2d point = a.getPoint2d();
+                double x = point.getX();
+                double y = point.getY();
+                Sphere atom = createAtom(getColorID(a.getSymbol()), 0.3f);
+                if(a.getSymbol().equals("H"))
+                    atom.setScale(0.2f);
+
+                atom.setPosition(x, y, 0);
+            }
+        }
+    }
+
     private Sphere createAtom(int color, float size)
     {
-        if(scene == null)
-            return null;
-
         Sphere newAtom = new Sphere(size, 10, 10);
         newAtom.setMaterial(materials.get(color));
+        atomGeo.add(newAtom);
         scene.addChild(newAtom);
         return newAtom;
     }
 
+    private Cylinder createBond(float radius, float length, IBond.Order order, IAtom a1, IAtom a2, IBond b)
+    {
+        Cylinder bondCylinder = new Cylinder(length, radius, 2, 5);
+        bondCylinder.setMaterial(materials.get(Color.LTGRAY));
+        IAtom[] atoms = new IAtom[]{a1, a2};
+        Pair<Cylinder, IAtom[]> bondAtomPair = new Pair<>();
+        bondAtomPair.first = bondCylinder;
+        bondAtomPair.second = atoms;
+        bondGeo.put(b, bondAtomPair);
+        scene.addChild(bondCylinder);
+        return bondCylinder;
+    }
+
     private void rotateMolecule(double angX, double angY)
     {
-        Matrix4 rotMatX = Matrix4.createRotationMatrix(0,0,0, angX);
-        Matrix4 rotMatZ = Matrix4.createRotationMatrix(Vector3.Axis.Z, angX);
-        Matrix4 rotMat = rotMatX.multiply(rotMatZ);
-//        rotMat = rotMat.multiply(rotMatX);
+        Matrix4 rotMatY = Matrix4.createRotationMatrix(Vector3.Axis.Y, angY);
+        Matrix4 rotMatX = Matrix4.createRotationMatrix(Vector3.Axis.X, angX);
+        Matrix4 rotMat = rotMatY.multiply(rotMatX);
 
-        for (IAtom a: molecule.atoms()) {
-             Point2d p = a.getPoint2d();
-             Vector3 v = new Vector3(p.getX(), p.getY(),0);
+        for (IAtom a: molecule.atoms())
+        {
+             Point3d p = a.getPoint3d();
+             Vector3 v = new Vector3(p.getX(), p.getY(), p.getZ());
              v = rotMat.projectVector(v);
              p.setX(v.x);
              p.setY(v.y);
+             p.setZ(v.z);
+
+            for (IBond b: molecule.bonds())
+            {
+                Point3d bP = b.get3DCenter();
+                Vector3 bV = new Vector3(bP.getX(), bP.getY(), bP.getZ());
+                bV = rotMat.projectVector(bV);
+                bP.set(bV.x, bV.y, bV.z);
+            }
         }
     }
 
-    private void updateAtomPositions()
+    private void updateGeoPositions()
     {
         for (int i = 0; i < atomGeo.size(); i++)
         {
-            Point2d point = molecule.getAtom(i).getPoint2d();
+            Point3d point = molecule.getAtom(i).getPoint3d();
             double x = point.getX();
             double y = point.getY();
+            double z = point.getZ();
             Sphere atom = atomGeo.get(i);
-            atom.setPosition(x, y, 0);
+            atom.setPosition(x, y, z);
+        }
+
+        for(int i = 0; i < bondGeo.size(); i++)
+        {
+            IBond b = molecule.getBond(i);
+            Point3d point = b.get3DCenter();
+            double x = point.getX();
+            double y = point.getY();
+            double z = point.getZ();
+
+            Pair<Cylinder, IAtom[]> bond = bondGeo.get(b);
+            bond.first.setPosition(x, y, z);
+            Point3d atomPoint = bond.second[0].getPoint3d();
+            bond.first.setLookAt(atomPoint.x, atomPoint.y, atomPoint.z);
         }
     }
 
-    private void centerMolecule()
+    // vector pointing from a --> B
+    private Vector3 getVectorBetween(Point3d a, Point3d b)
     {
-        //Point3d point = GeometryUtil.get3DCenter(molecule);
+        Vector3 aVect = new Vector3(a.x, a.y, a.z);
+        Vector3 bVect = new Vector3(b.x, b.y, b.z);
+        return Vector3.subtractAndCreate(aVect, bVect);
     }
-
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
     {

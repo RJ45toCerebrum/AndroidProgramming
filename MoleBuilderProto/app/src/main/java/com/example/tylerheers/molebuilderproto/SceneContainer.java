@@ -11,7 +11,7 @@ import java.util.List;
  */
 class SceneContainer
 {
-    public enum SceneChangeType
+    enum SceneChangeType
     {
         AtomNumber, BondNumber, MoleculeNumber, All
     }

@@ -203,8 +203,6 @@ public class MainActivity extends AppCompatActivity
         actionButtons.put(R.id.undoActionButton, undoButton);
     }
 
-    //TODO: Convert this so that initRenderer3D() is
-    //TODO: in PostExecute; Do molecule conversion before init 3D mole viewer
     private void init3DButton()
     {
 
@@ -276,7 +274,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     //TODO: Add support for triple bonds by replacing # with %23
-    // TODO: add Auto-completion for smiles
+    //TODO: add Auto-completion for smiles
     private void sendTo3DRenderer()
     {
         try
