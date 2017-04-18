@@ -25,7 +25,7 @@ import java.util.HashMap;
 
 class Molecule extends AtomContainer
 {
-    SceneContainer sceneContainer;
+    private SceneContainer sceneContainer;
     Molecule()
     {
         super();
@@ -57,6 +57,8 @@ class Molecule extends AtomContainer
         }
 
         super.removeAtom(atom);
+        if(getAtomCount() == 0)
+            sceneContainer.delMolecule(getID());
     }
 
     /**
@@ -83,6 +85,7 @@ class Molecule extends AtomContainer
     {
         super.addAtom(a);
         a.setMolecule(this);
+        sceneContainer.delAtom(a.getID());
     }
 
     /**

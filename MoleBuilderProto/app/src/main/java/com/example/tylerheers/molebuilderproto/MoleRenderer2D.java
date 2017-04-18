@@ -48,9 +48,7 @@ public class MoleRenderer2D extends View
 
     // fields for Atom's
     Queue<MoleculeAtom> atomSelectionQ = new LinkedList<>();
-
     MoleculeAtom selectedAtom = null;
-    //Molecule selectedMolecule = null;
     float atomCircleRadius = 55.0f;
     float textSize = 60.0f;
 
@@ -170,11 +168,14 @@ public class MoleRenderer2D extends View
                 return false;
 
             Molecule atom2Mole = a2.getMolecule();
-            if(atom2Mole != null)
-                mole.addMolecule(atom2Mole);
+            if (atom2Mole != null)
+            {
+                //if the molecule is cyclic
+                if(atom2Mole != mole)
+                    mole.addMolecule(atom2Mole);
+            }
             else
                 mole.addAtom(a2);
-
         }
         else if(a2.isInMolecule())
         {

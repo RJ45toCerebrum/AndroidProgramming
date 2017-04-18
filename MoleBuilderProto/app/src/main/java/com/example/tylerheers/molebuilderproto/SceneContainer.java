@@ -1,5 +1,7 @@
 package com.example.tylerheers.molebuilderproto;
 
+import org.openscience.cdk.interfaces.IAtom;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -82,6 +84,11 @@ class SceneContainer
     {
         if (mole != null)
         {
+            for (IAtom a: mole.atoms()) {
+                MoleculeAtom ma = (MoleculeAtom)a;
+                atoms.remove(ma.getID());
+            }
+
             molecules.put(mole.getID(), mole);
             updateSceneListeners(SceneChangeType.MoleculeNumber);
             return true;
@@ -103,8 +110,13 @@ class SceneContainer
         return bondCount;
     }
 
-    int getAtomCount() {
-        return atoms.size();
+    int getAtomCount()
+    {
+        int numAtoms = atoms.size();
+        for (Molecule m: molecules.values()) {
+            numAtoms += m.getAtomCount();
+        }
+        return numAtoms;
     }
 
     int getMoleculeCount() {
@@ -125,6 +137,7 @@ class SceneContainer
 
     void updateSceneListeners(SceneChangeType type)
     {
+
         if(type == SceneChangeType.AtomNumber)
             for (SceneChangeListener listener : sceneChangeListeners)
                 listener.atomNumberChanged();
@@ -146,4 +159,13 @@ class SceneContainer
 
     }
 
+    boolean isAtomInMolecule(IAtom a)
+    {
+        for (Molecule m: molecules.values()) {
+            if(m.contains(a))
+                return true;
+        }
+
+        return false;
+    }
 }

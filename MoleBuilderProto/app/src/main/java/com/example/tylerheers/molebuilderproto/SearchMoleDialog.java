@@ -116,6 +116,7 @@ public class SearchMoleDialog extends DialogFragment
             if(con != null)
             {
                 Molecule mole = Molecule.convertAtomContainer(con);
+                SceneContainer.getInstance().putMolecule(mole);
                 if(mole == null)
                     Toast.makeText(getActivity().getBaseContext(), "Sorry! Something went wrong molecule building",
                                    Toast.LENGTH_LONG).show();
