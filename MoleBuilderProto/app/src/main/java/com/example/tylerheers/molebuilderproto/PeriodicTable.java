@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import org.openscience.cdk.Element;
 import org.openscience.cdk.config.Elements;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 public class PeriodicTable extends DialogFragment
 {
     int theme;
-
+    MoleRenderer2D moleRenderer;
 
     static PeriodicTable newInstance(int themeNumber)
     {
@@ -37,7 +38,6 @@ public class PeriodicTable extends DialogFragment
     {
         super.onCreate(savedInstanceState);
         theme = getArguments().getInt("theme");
-
         // Pick a style based on the num.
         int style = DialogFragment.STYLE_NORMAL, theme = 0;
         setStyle(style, theme);
@@ -48,10 +48,12 @@ public class PeriodicTable extends DialogFragment
                              Bundle savedInstanceState)
     {
         View v = inflater.inflate(R.layout.periodic_table_dialog, container, false);
-
         GridView gv = (GridView) v.findViewById(R.id.periodicTableView);
-        gv.setAdapter(new PeriodicTableAdapter(getActivity()));
+        gv.setAdapter(new PeriodicTableAdapter(getActivity(), this, moleRenderer));
         return v;
     }
 
+    void setMoleRenderer(MoleRenderer2D mr) {
+        moleRenderer = mr;
+    }
 }

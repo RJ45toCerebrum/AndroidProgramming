@@ -1,8 +1,10 @@
 package com.example.tylerheers.molebuilderproto;
 
 
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,7 +34,12 @@ import java.util.Stack;
 
 import javax.vecmath.Point2d;
 
-//TODO: Add periodic table button and fragment
+//TODO: Auto-rotation of molecule button for 3D renderer
+//TODO: Double bonds and triple bonding in 3D renderer
+//TODO: Update the panning and zooming
+//TODO: Add the undo action capability
+//TODO: fix any bugs
+//TODO: update the UI to make look better then DONE!
 public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener,
                                      IAsyncResult<String>,
@@ -78,7 +85,11 @@ public class MainActivity extends AppCompatActivity
         });
 
         canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
-        sceneText = (TextView)findViewById(R.id.sceneInfoTextView);
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            sceneText = (TextView) findViewById(R.id.sceneInfoTextView);
+            updateSceneText();
+        }
 
         initRenderer2D();
         initAtomButtonList();
@@ -95,6 +106,17 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
+            sceneText = (TextView)findViewById(R.id.sceneInfoTextView);
+        }
+    }
 
     private void initAtomButtonList()
     {
@@ -152,10 +174,12 @@ public class MainActivity extends AppCompatActivity
 
         atomButtonLayout.addView(periodicTableButton);
         periodicTableButton.setClickable(true);
-        periodicTableButton.setOnClickListener(new View.OnClickListener() {
+        periodicTableButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View v) {
                 PeriodicTable pt = PeriodicTable.newInstance(0);
+                pt.setMoleRenderer(moleRenderer);
                 pt.show(getFragmentManager(), "123");
             }
         });
@@ -296,8 +320,6 @@ public class MainActivity extends AppCompatActivity
             canvasLayout.addView(surfView);
     }
 
-    //TODO: Add support for triple bonds by replacing # with %23
-    //TODO: add Auto-completion for smiles
     private void sendTo3DRenderer()
     {
         try
@@ -349,11 +371,14 @@ public class MainActivity extends AppCompatActivity
 
     private void updateSceneText()
     {
-        String numAtomsText = String.format("Number of Atoms: %d", sceneContainer.getAtomCount());
-        String numBondsText = String.format("\tNumber of Bonds: %d\n", sceneContainer.getBondCount());
-        String numMoleculesText = String.format("Number of Molecules: %d", sceneContainer.getMoleculeCount());
-        numAtomsText += numBondsText + numMoleculesText;
-        sceneText.setText(numAtomsText);
+        if(sceneText != null)
+        {
+            String numAtomsText = String.format("Number of Atoms: %d", sceneContainer.getAtomCount());
+            String numBondsText = String.format("\tNumber of Bonds: %d\n", sceneContainer.getBondCount());
+            String numMoleculesText = String.format("Number of Molecules: %d", sceneContainer.getMoleculeCount());
+            numAtomsText += numBondsText + numMoleculesText;
+            sceneText.setText(numAtomsText);
+        }
     }
 
     @Override
