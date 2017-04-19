@@ -22,9 +22,12 @@ class PeriodicTableAdapter extends BaseAdapter
         this.pt = pt;
         this.moleRenderer = moleRenderer;
         context = c;
-        es = new ArrayList<>(86);
-        for(int i = 1; i < 86; i++) {
-            es.add(Elements.ofNumber(i));
+        es = new ArrayList<>(54);
+        for(int i = 1; i < 54; i++)
+        {
+            Elements e = Elements.ofNumber(i);
+            if( e.group() < 3 || e.group() > 12 )
+                es.add(Elements.ofNumber(i));
         }
     }
 

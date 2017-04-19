@@ -339,6 +339,9 @@ public class MainActivity extends AppCompatActivity
         catch (CDKException ex) {
             Log.e("CDK Smiles Exception", ex.getMessage());
         }
+        catch (Exception ex){
+            Log.e("Exception", ex.getMessage());
+        }
     }
 
     public void addAction(Action action) {

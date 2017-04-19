@@ -135,6 +135,8 @@ public class MoleRenderer2D extends View
             MoleculeAtom newAtom = new MoleculeAtom(atom);
             newAtom.setID("atom"+String.valueOf(atomCount+1));
             newAtom.setPoint2d(new Point2d(panX, panY));
+            newAtom.setImplicitHydrogenCount(0);
+            newAtom.setFormalCharge(0);
             sceneContainer.putAtom(newAtom);
             rendererBitmap = null;
 
