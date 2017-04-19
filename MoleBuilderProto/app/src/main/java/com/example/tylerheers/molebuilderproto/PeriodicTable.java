@@ -15,13 +15,14 @@ import org.openscience.cdk.Element;
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.interfaces.IElement;
 
-/**
- * Created by Tyler on 4/18/2017.
- */
+import java.util.ArrayList;
+
 
 public class PeriodicTable extends DialogFragment
 {
     int theme;
+
+
     static PeriodicTable newInstance(int themeNumber)
     {
         PeriodicTable pt = new PeriodicTable();
@@ -49,14 +50,7 @@ public class PeriodicTable extends DialogFragment
         View v = inflater.inflate(R.layout.periodic_table_dialog, container, false);
 
         GridView gv = (GridView) v.findViewById(R.id.periodicTableView);
-        for (Elements e: Elements.values())
-        {
-            AtomButton button = new AtomButton(getActivity());
-            button.setElement(Elements.valueOf(e.name()));
-            button.setText(e.symbol());
-            gv.addView(button);
-        }
-
+        gv.setAdapter(new PeriodicTableAdapter(getActivity()));
         return v;
     }
 

@@ -51,94 +51,44 @@
         <item>COBALT</item>
         <item>NICKEL</item>
         <item>COPPER</item>
-        <item> ZINC</item>
+        <item>ZINC</item>
         <item>GALLIUM</item>
         <item>GERMANIUM</item>
         <item>ARSENIC</item>
-        <item> SELENIUM</item>
+        <item>SELENIUM</item>
         <item>BROMINE</item>
-        <item> KRYPTON</item>
-        <item> RUBIDIUM</item>
-        <item> STRONTIUM</item>
-        <item>YTTRIUM</item>
-        <item> ZIRCONIUM</item>
-        <item>  NIOBIUM</item>
-        <item> MOLYBDENUM</item>
-        <item> TECHNETIUM</item>
-        <item> RUTHENIUM</item>
-        <item> RHODIUM</item>
-        <item> PALLADIUM</item>
-        <item> SILVER</item>
-        <item> CADMIUM</item>
-        <item> INDIUM</item>
-        <item> TIN</item>
-        <item> ANTIMONY</item>
-        <item> TELLURIUM</item>
-        <item> IODINE</item>
-        <item> XENON</item>
-        <item> CESIUM</item>
-        <item> BARIUM</item>
-        <item> LANTHANUM</item>
-        <item> CERIUM</item>
-        <item> PRASEODYMIUM</item>
-        <item> NEODYMIUM</item>
-        <item>PROMETHIUM</item>
-        <item> SAMARIUM</item>
-        <item> EUROPIUM</item>
-        <item> GADOLINIUM</item>
-        <item> TERBIUM</item>
-        <item> DYSPROSIUM</item>
-        <item> HOLMIUM</item>
-        <item> ERBIUM</item>
-        <item> THULIUM</item>
-        <item>YTTERBIUM</item>
-        <item> LUTETIUM</item>
-        <item> HAFNIUM</item>
-        <item> TANTALUM</item>
-        <item> TUNGSTEN</item>
-        <item> RHENIUM</item>
+        <item>KRYPTON</item>
+        <item>RUBIDIUM</item>
+        <item>STRONTIUM</item>
+        <item>ZIRCONIUM</item>
+        <item>NIOBIUM</item>
+        <item>MOLYBDENUM</item>
+        <item>RHODIUM</item>
+        <item>PALLADIUM</item>
+        <item>SILVER</item>
+        <item>CADMIUM</item>
+        <item>INDIUM</item>
+        <item>TIN</item>
+        <item>IODINE</item>
+        <item>XENON</item>
+        <item>CESIUM</item>
+        <item>NEODYMIUM</item>
+        <item>TUNGSTEN</item>
+        <item>RHENIUM</item>
         <item>OSMIUM</item>
         <item>IRIDIUM</item>
-        <item> PLATINUM</item>
+        <item>PLATINUM</item>
         <item>GOLD</item>
-        <item> MERCURY</item>
+        <item>MERCURY</item>
         <item>THALLIUM</item>
-        <item> LEAD</item>
-        <item> BISMUTH</item>
-        <item> POLONIUM</item>
-        <item> ASTATINE</item>
-        <item> RADON</item>
-        <item> FRANCIUM</item>
-        <item> RADIUM</item>
-        <item> ACTINIUM</item>
-        <item> THORIUM</item>
-        <item> PROTACTINIUM</item>
+        <item>LEAD</item>
+        <item>BISMUTH</item>
+        <item>POLONIUM</item>
+        <item>ASTATINE</item>
+        <item>RADON</item>
+        <item>PROTACTINIUM</item>
         <item>URANIUM</item>
         <item>NEPTUNIUM</item>
         <item>PLUTONIUM</item>
-        <item> AMERICIUM</item>
-        <item> CURIUM</item>
-        <item> BERKELIUM</item>
-        <item> CALIFORNIUM</item>
-        <item> EINSTEINIUM</item>
-        <item> FERMIUM</item>
-        <item> MENDELEVIUM</item>
-        <item> NOBELIUM</item>
-        <item>LAWRENCIUM</item>
-        <item> RUTHERFORDIUM</item>
-        <item> DUBNIUM</item>
-        <item> SEABORGIUM</item>
-        <item>BOHRIUM</item>
-        <item> HASSIUM</item>
-        <item> MEITNERIUM</item>
-        <item>DARMSTADTIUM</item>
-        <item> ROENTGENIUM</item>
-        <item>COPERNICIUM</item>
-        <item> UNUNTRIUM</item>
-        <item> FLEROVIUM</item>
-        <item> UNUNPENTIUM</item>
-        <item>LIVERMORIUM</item>
-        <item>UNUNSEPTIUM</item>
-        <item>UNUNOCTIUM</item>
     </string-array>
 </resources>
