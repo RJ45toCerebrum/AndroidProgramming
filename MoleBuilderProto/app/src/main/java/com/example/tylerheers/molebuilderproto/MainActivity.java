@@ -34,7 +34,6 @@ import java.util.Stack;
 
 import javax.vecmath.Point2d;
 
-//TODO: Auto-rotation of molecule button for 3D renderer
 //TODO: Double bonds and triple bonding in 3D renderer
 //TODO: Update the panning and zooming
 //TODO: Add the undo action capability

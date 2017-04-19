@@ -2,10 +2,13 @@ package com.example.tylerheers.molebuilderproto;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.util.SparseArray;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
+import org.openscience.cdk.Bond;
 import org.openscience.cdk.geometry.GeometryUtil;
 import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
@@ -42,13 +45,16 @@ class MoleRenderer3D extends Renderer
     private Context context;
     private Scene scene;
     private List<Sphere> atomGeo;
-    private HashMap<IBond, Pair<Cylinder, IAtom[]>> bondGeo;
+    //private HashMap<IBond, Pair<Cylinder, IAtom[]>> bondGeo;
+    private List<MoleRenderer3D.Bond> bondGeo;
 
     private DirectionalLight directionalLight;
     private org.rajawali3d.cameras.Camera cam;
     private float xPos, yPos;
     private float scaleFactor = 60;
     private boolean isScaling = false;
+    private GestureDetector gestureDetector;
+    private boolean autoRotation = false;
 
 
     private ScaleGestureDetector scaleDetector;
@@ -68,12 +74,15 @@ class MoleRenderer3D extends Renderer
         this.setFrameRate(30);
 
         scaleDetector = new ScaleGestureDetector(getContext(), new MoleRenderer3D.ScaleListener());
+        gestureDetector = new GestureDetector(this.getContext(), new GestureListener());
     }
 
     @Override
     public void onTouchEvent(MotionEvent event)
     {
         scaleDetector.onTouchEvent(event);
+        gestureDetector.onTouchEvent(event);
+
         int actionID = event.getAction();
         if(actionID == MotionEvent.ACTION_DOWN)
         {
@@ -82,6 +91,7 @@ class MoleRenderer3D extends Renderer
         }
         else if(actionID == MotionEvent.ACTION_MOVE && !isScaling)
         {
+            autoRotation = false;
             float dx = (event.getX() - xPos);
             float dy = (event.getY() - yPos);
             rotateMolecule(-dy * 0.1, -dx * 0.1);
@@ -101,6 +111,10 @@ class MoleRenderer3D extends Renderer
     public void onRender(final long elapsed, final double deltaTime)
     {
         super.onRender(elapsed, deltaTime);
+        if(autoRotation){
+            rotateMolecule(0, 0.5);
+            updateGeoPositions();
+        }
     }
 
 
@@ -112,7 +126,8 @@ class MoleRenderer3D extends Renderer
         initColorMap();
 
         atomGeo = new ArrayList<>(molecule.getAtomCount());
-        bondGeo = new HashMap<>(molecule.getBondCount());
+        //bondGeo = new HashMap<>(molecule.getBondCount());
+        bondGeo = new ArrayList<>(molecule.getBondCount());
 
         // render mole center; for debugging
         Sphere centerSphere = new Sphere(0.05f, 10, 10);
@@ -197,7 +212,6 @@ class MoleRenderer3D extends Renderer
     private void constructMoleculeGeo()
     {
         Set<IBond> bonds = new HashSet<>(molecule.getBondCount());
-
         if(is3D)
         {
             for (IAtom a : molecule.atoms())
@@ -222,10 +236,12 @@ class MoleRenderer3D extends Renderer
                     bonds.add(bond);
                     Vector3 vect = getVectorBetween(point, conAtom.getPoint3d());
                     Point3d bPoint = bond.get3DCenter();
-                    Cylinder bondGeo = createBond(0.05f, (float)vect.length(), bond.getOrder(), conAtom, a, bond);
-                    bondGeo.setPosition(bPoint.x, bPoint.y, bPoint.z);
+                    //Cylinder bondGeo = createBond(0.05f, (float)vect.length(), conAtom, a, bond);
+                    MoleRenderer3D.Bond b = new Bond(0.05f, (float)vect.length(), conAtom, a, bond);
+                    b.setPosition(bPoint.x, bPoint.y, bPoint.z);
                     Point3d caP = conAtom.getPoint3d();
-                    bondGeo.setLookAt(caP.x, caP.y, caP.z);
+                    b.setLookAt(caP.x, caP.y, caP.z);
+                    bondGeo.add(b);
                 }
             }
         }
@@ -255,18 +271,18 @@ class MoleRenderer3D extends Renderer
         return newAtom;
     }
 
-    private Cylinder createBond(float radius, float length, IBond.Order order, IAtom a1, IAtom a2, IBond b)
-    {
-        Cylinder bondCylinder = new Cylinder(length, radius, 2, 5);
-        bondCylinder.setMaterial(materials.get(Color.LTGRAY));
-        IAtom[] atoms = new IAtom[]{a1, a2};
-        Pair<Cylinder, IAtom[]> bondAtomPair = new Pair<>();
-        bondAtomPair.first = bondCylinder;
-        bondAtomPair.second = atoms;
-        bondGeo.put(b, bondAtomPair);
-        scene.addChild(bondCylinder);
-        return bondCylinder;
-    }
+//    private Cylinder createBond(float radius, float length, IAtom a1, IAtom a2, IBond b)
+//    {
+//        Cylinder bondCylinder = new Cylinder(length, radius, 2, 5);
+//        bondCylinder.setMaterial(materials.get(Color.LTGRAY));
+//        IAtom[] atoms = new IAtom[]{a1, a2};
+//        Pair<Cylinder, IAtom[]> bondAtomPair = new Pair<>();
+//        bondAtomPair.first = bondCylinder;
+//        bondAtomPair.second = atoms;
+//        bondGeo.put(b, bondAtomPair);
+//        scene.addChild(bondCylinder);
+//        return bondCylinder;
+//    }
 
     private void rotateMolecule(double angX, double angY)
     {
@@ -313,10 +329,14 @@ class MoleRenderer3D extends Renderer
             double y = point.getY();
             double z = point.getZ();
 
-            Pair<Cylinder, IAtom[]> bond = bondGeo.get(b);
-            bond.first.setPosition(x, y, z);
-            Point3d atomPoint = bond.second[0].getPoint3d();
-            bond.first.setLookAt(atomPoint.x, atomPoint.y, atomPoint.z);
+            bondGeo.get(i).setPosition(x, y, z);
+            Point3d atomPoint = bondGeo.get(i).getAtoms()[1].getPoint3d();
+            bondGeo.get(i).setLookAt(atomPoint.x, atomPoint.y, atomPoint.z);
+
+//            Pair<Cylinder, IAtom[]> bond = bondGeo.get(b);
+//            bond.first.setPosition(x, y, z);
+//            Point3d atomPoint = bond.second[0].getPoint3d();
+//            bond.first.setLookAt(atomPoint.x, atomPoint.y, atomPoint.z);
         }
     }
 
@@ -326,6 +346,60 @@ class MoleRenderer3D extends Renderer
         Vector3 aVect = new Vector3(a.x, a.y, a.z);
         Vector3 bVect = new Vector3(b.x, b.y, b.z);
         return Vector3.subtractAndCreate(aVect, bVect);
+    }
+
+    private class Bond
+    {
+        private List<Cylinder> bondGeo;
+        private IAtom[] atoms;
+        private IBond bond;
+        float length = 1;
+        float radius = 1;
+
+        Bond(float radius, float length, IAtom a1, IAtom a2, IBond b)
+        {
+            this.radius = radius;
+            this.length = length;
+            this.bond = b;
+            atoms = new IAtom[]{a1, a2};
+            bondGeo = new ArrayList<>();
+
+            createBondGeo();
+            Log.i("Bond Order", bond.getOrder().toString());
+        }
+
+        void createBondGeo()
+        {
+            for(int i = 0; i < bond.getOrder().numeric(); i++) {
+                Cylinder bondCylinder = new Cylinder(length, radius, 2, 5);
+                if(i == 1)
+                    bondCylinder.setPosition(0.3, 0, 0);
+                else if(i == 2)
+                    bondCylinder.setPosition(-0.3,0,0);
+
+                bondCylinder.setMaterial(materials.get(Color.LTGRAY));
+                bondGeo.add(bondCylinder);
+                scene.addChild(bondCylinder);
+            }
+        }
+
+        void setPosition(double x, double y, double z)
+        {
+            float offset = 0;
+            for (Cylinder bGeo : bondGeo) {
+                bGeo.setPosition(x + offset, y + offset, z + offset);
+                offset += -0.1f;
+            }
+        }
+
+        void setLookAt(double x, double y, double z)
+        {
+            for (Cylinder c: bondGeo)
+                c.setLookAt(x, y, z);
+        }
+
+        IAtom[] getAtoms(){ return atoms;}
+        List<Cylinder> getBonds() {return bondGeo;}
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
@@ -338,6 +412,17 @@ class MoleRenderer3D extends Renderer
 
             cam.setFieldOfView(scaleFactor);
             isScaling = true;
+            return true;
+        }
+    }
+
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener
+    {
+        @Override
+        public boolean onDoubleTap(MotionEvent e)
+        {
+            Log.i("R", "Rot");
+            autoRotation = !autoRotation;
             return true;
         }
     }
