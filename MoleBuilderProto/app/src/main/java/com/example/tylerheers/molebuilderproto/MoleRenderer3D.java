@@ -2,6 +2,7 @@ package com.example.tylerheers.molebuilderproto;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.graphics.ColorUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -39,13 +40,12 @@ import javax.vecmath.Point3d;
 
 class MoleRenderer3D extends Renderer
 {
-    IAtomContainer molecule;
+    private IAtomContainer molecule;
     private boolean is3D = false;
     private SparseArray<Material> materials;
     private Context context;
     private Scene scene;
     private List<Sphere> atomGeo;
-    //private HashMap<IBond, Pair<Cylinder, IAtom[]>> bondGeo;
     private List<MoleRenderer3D.Bond> bondGeo;
 
     private DirectionalLight directionalLight;
@@ -173,7 +173,7 @@ class MoleRenderer3D extends Renderer
         materials.put(Color.LTGRAY, createMaterial(Color.LTGRAY));
         materials.put(Color.DKGRAY, createMaterial(Color.DKGRAY));
         materials.put(Color.MAGENTA, createMaterial(Color.MAGENTA));
-        //materials.put();
+        materials.put(Color.BLUE & Color.RED, createMaterial(0xF075FF));
     }
 
     private int getColorID(String symbol)
@@ -194,9 +194,10 @@ class MoleRenderer3D extends Renderer
                 return Color.GREEN;
             case "S":
                 return Color.YELLOW;
+            case "P":
+                return Color.BLUE & Color.RED;
             default:
                 return Color.LTGRAY;
-
         }
     }
 
@@ -258,6 +259,26 @@ class MoleRenderer3D extends Renderer
                     atom.setScale(0.2f);
 
                 atom.setPosition(x, y, 0);
+                a.setPoint3d(new Point3d(x, y, 0));
+
+                // bond creation
+                for (IAtom conAtom: molecule.getConnectedAtomsList(a))
+                {
+                    IBond bond = molecule.getBond(a, conAtom);
+                    if(bonds.contains(bond))
+                        continue;
+
+                    bonds.add(bond);
+                    Point3d point3d = new Point3d(point.x, point.y, 0);
+                    Point3d conAtomPoint = new Point3d(conAtom.getPoint2d().x, conAtom.getPoint2d().y, 0);
+                    Vector3 vect = getVectorBetween(point3d, conAtomPoint);
+                    Point2d bPoint = bond.get2DCenter();
+                    MoleRenderer3D.Bond b = new Bond(0.05f, (float)vect.length(), conAtom, a, bond);
+                    b.setPosition(bPoint.x, bPoint.y, 0);
+                    Point2d caP = conAtom.getPoint2d();
+                    b.setLookAt(caP.x, caP.y, 0);
+                    bondGeo.add(b);
+                }
             }
         }
     }
@@ -270,19 +291,6 @@ class MoleRenderer3D extends Renderer
         scene.addChild(newAtom);
         return newAtom;
     }
-
-//    private Cylinder createBond(float radius, float length, IAtom a1, IAtom a2, IBond b)
-//    {
-//        Cylinder bondCylinder = new Cylinder(length, radius, 2, 5);
-//        bondCylinder.setMaterial(materials.get(Color.LTGRAY));
-//        IAtom[] atoms = new IAtom[]{a1, a2};
-//        Pair<Cylinder, IAtom[]> bondAtomPair = new Pair<>();
-//        bondAtomPair.first = bondCylinder;
-//        bondAtomPair.second = atoms;
-//        bondGeo.put(b, bondAtomPair);
-//        scene.addChild(bondCylinder);
-//        return bondCylinder;
-//    }
 
     private void rotateMolecule(double angX, double angY)
     {
@@ -355,6 +363,7 @@ class MoleRenderer3D extends Renderer
         private IBond bond;
         float length = 1;
         float radius = 1;
+        final float bondOffset = 0.15f;
 
         Bond(float radius, float length, IAtom a1, IAtom a2, IBond b)
         {
@@ -365,37 +374,49 @@ class MoleRenderer3D extends Renderer
             bondGeo = new ArrayList<>();
 
             createBondGeo();
-            Log.i("Bond Order", bond.getOrder().toString());
         }
 
         void createBondGeo()
         {
-            for(int i = 0; i < bond.getOrder().numeric(); i++) {
-                Cylinder bondCylinder = new Cylinder(length, radius, 2, 5);
-                if(i == 1)
-                    bondCylinder.setPosition(0.3, 0, 0);
-                else if(i == 2)
-                    bondCylinder.setPosition(-0.3,0,0);
+            Cylinder bondCylinder = new Cylinder(length, radius, 2, 5);
+            bondCylinder.setPosition(0, 0, 0);
+            bondCylinder.setMaterial(materials.get(Color.LTGRAY));
+            bondGeo.add(bondCylinder);
+            scene.addChild(bondCylinder);
 
-                bondCylinder.setMaterial(materials.get(Color.LTGRAY));
-                bondGeo.add(bondCylinder);
-                scene.addChild(bondCylinder);
+            if(bond.getOrder().numeric() >= 2)
+            {
+                Cylinder bondCylinder2 = new Cylinder(length, radius, 2, 5);
+                bondCylinder2.setPosition(0, bondOffset, 0);
+                bondCylinder2.setMaterial(materials.get(Color.LTGRAY));
+                bondCylinder.addChild(bondCylinder2);
+                bondGeo.add(bondCylinder2);
+                scene.addChild(bondCylinder2);
+
+                if(bond.getOrder() == IBond.Order.TRIPLE)
+                {
+                    Cylinder bondCylinder3 = new Cylinder(length, radius, 2, 5);
+                    bondCylinder3.setPosition(0, -bondOffset, 0);
+                    bondCylinder3.setMaterial(materials.get(Color.LTGRAY));
+                    bondCylinder.addChild(bondCylinder3);
+                    bondGeo.add(bondCylinder3);
+                    scene.addChild(bondCylinder3);
+                }
             }
+
         }
 
         void setPosition(double x, double y, double z)
         {
-            float offset = 0;
-            for (Cylinder bGeo : bondGeo) {
-                bGeo.setPosition(x + offset, y + offset, z + offset);
-                offset += -0.1f;
-            }
+            Cylinder b1 = bondGeo.get(0);
+            b1.setPosition(x, y, z);
         }
 
         void setLookAt(double x, double y, double z)
         {
-            for (Cylinder c: bondGeo)
-                c.setLookAt(x, y, z);
+            // parenting should rotate others
+            Cylinder b1 = bondGeo.get(0);
+            b1.setLookAt(x, y, z);
         }
 
         IAtom[] getAtoms(){ return atoms;}

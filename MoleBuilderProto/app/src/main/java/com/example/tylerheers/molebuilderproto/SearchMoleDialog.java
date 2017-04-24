@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -43,6 +44,7 @@ public class SearchMoleDialog extends DialogFragment
     EditText searchText;
     RadioGroup radioGroup;
     MoleRenderer2D renderer2D;
+    View searchMoleView;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
@@ -50,7 +52,7 @@ public class SearchMoleDialog extends DialogFragment
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        View searchMoleView = inflater.inflate(R.layout.search_mole_dialog, null);
+        searchMoleView = inflater.inflate(R.layout.search_mole_dialog, null);
         searchMoleView.setVisibility(View.VISIBLE);
 
         searchText = (EditText) searchMoleView.findViewById(R.id.searchMoleEditText);
@@ -98,7 +100,10 @@ public class SearchMoleDialog extends DialogFragment
                 url = String.format("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/SDF", moleculeName);
             else
                 url = String.format("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/SDF", moleculeName);
+
             requestSDF.execute(url);
+            ProgressBar bar = (ProgressBar) searchMoleView.findViewById(R.id.moleSearchProgressBar);
+            bar.setVisibility(View.VISIBLE);
         }
     }
 
@@ -115,13 +120,18 @@ public class SearchMoleDialog extends DialogFragment
             IAtomContainer con = SdfConverter.convertSDFString(results);
             if(con != null)
             {
+                if(con.getAtomCount() >= SceneContainer.maxAtomsForMolecule){
+                    Toast.makeText(getActivity().getBaseContext(), "Unable to build Molecules with over 60 atoms",
+                            Toast.LENGTH_LONG).show();
+                }
+
                 Molecule mole = Molecule.convertAtomContainer(con);
                 SceneContainer.getInstance().putMolecule(mole);
                 if(mole == null)
                     Toast.makeText(getActivity().getBaseContext(), "Sorry! Something went wrong molecule building",
                                    Toast.LENGTH_LONG).show();
-
-                renderer2D.addMolecule(mole);
+                else
+                    renderer2D.addMolecule(mole);
             }
         }
 

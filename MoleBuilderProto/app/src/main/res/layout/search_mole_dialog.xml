@@ -84,4 +84,15 @@
 
     </RadioGroup>
 
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_below="@+id/cancelSearchButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/moleSearchProgressBar"
+        android:visibility="invisible"
+        android:indeterminate="true"/>
+
 </RelativeLayout>

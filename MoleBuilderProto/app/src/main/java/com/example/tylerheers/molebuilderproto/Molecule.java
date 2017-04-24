@@ -1,6 +1,7 @@
 package com.example.tylerheers.molebuilderproto;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.openscience.cdk.AtomContainer;
 import org.openscience.cdk.atomtype.CDKAtomTypeMatcher;
@@ -169,6 +170,11 @@ class Molecule extends AtomContainer
         adder.addImplicitHydrogens(container);
 
         SmilesGenerator smilesGenerator = new SmilesGenerator(SmiFlavor.Generic);
-        return smilesGenerator.create(container);
+        String smiles = smilesGenerator.create(container);
+
+        if(smiles.contains("#"))
+            smiles = smiles.replace("#", "%23");
+
+        return smiles;
     }
 }

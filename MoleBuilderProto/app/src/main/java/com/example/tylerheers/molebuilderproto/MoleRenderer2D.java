@@ -134,15 +134,12 @@ public class MoleRenderer2D extends View
 
             MoleculeAtom newAtom = new MoleculeAtom(atom);
             newAtom.setID("atom"+String.valueOf(atomCount+1));
-            newAtom.setPoint2d(new Point2d(panX, panY));
+            newAtom.setPoint2d(new Point2d(panX + getWidth()/2, panY + getHeight()/2));
             newAtom.setImplicitHydrogenCount(0);
             newAtom.setFormalCharge(0);
             sceneContainer.putAtom(newAtom);
             rendererBitmap = null;
 
-            List<String> ids = new ArrayList<>();
-            ids.add(newAtom.getID());
-            sendAction(Action.ActionType.Add, ids, MoleculeAtom.class);
 
             postInvalidate();
         }
@@ -229,14 +226,11 @@ public class MoleRenderer2D extends View
         if (mole != null)
         {
             normalizePositions(mole);
-            GeometryUtil.translate2DCenterTo(mole, new Point2d(getWidth() + panX, getHeight() + panY));
+            Point2d startPoint = new Point2d(getWidth() + panX, getHeight() + panY);
+            Log.i("Add Atom Start Point", startPoint.toString());
+            GeometryUtil.translate2DCenterTo(mole, startPoint);
 
             sceneContainer.putMolecule(mole);
-
-            // For undoing actions
-            List<String> ids = new ArrayList<>();
-            ids.add(mole.getID());
-            sendAction(Action.ActionType.Add, ids, Molecule.class);
 
             rendererBitmap = null;
             return true;
@@ -245,7 +239,6 @@ public class MoleRenderer2D extends View
         return false;
     }
 
-    // TODO: deleting bonds and adding bonds is still a bit sketchy with the numbers
     public void deleteSelected()
     {
         for (IAtom a: atomSelectionQ)
@@ -263,48 +256,6 @@ public class MoleRenderer2D extends View
         rendererBitmap = null;
         sceneContainer.updateSceneListeners(SceneContainer.SceneChangeType.All);
         postInvalidate();
-    }
-
-    public void undoAdd(List<String> objIDs, Class<?> classType)
-    {
-        Log.e("Implementation", "Not implemented yet");
-//        if(classType == MoleculeAtom.class)
-//        {
-//            for (String id: objIDs)
-//            {
-//                MoleculeAtom a = atoms.get(id);
-//                if(a != null)
-//                {
-//                    Molecule m = a.getMolecule();
-//                    if(m != null)
-//                        m.removeAtom(a);
-//
-//                    atoms.remove(id);
-//                }
-//            }
-//        }
-//        else if(classType == Molecule.class)
-//        {
-//            for (String id: objIDs)
-//                molecules.remove(id);
-//        }
-//
-//        rendererBitmap = null;
-//        postInvalidate();
-    }
-
-    void sendAction(Action.ActionType actionType, List<String> objID, Class<?> classType)
-    {
-        Action action = new Action();
-        action.setActionType(actionType);
-
-        if(objID == null || objID.size() == 0)
-            throw new InvalidParameterException("Invalid ID list for action");
-
-        action.setObjIDList(objID);
-        action.setClassType(classType);
-
-        moleculeActivity.addAction(action);
     }
 
     private void normalizePositions(IAtomContainer atomContainer)
@@ -434,6 +385,11 @@ public class MoleRenderer2D extends View
         layout(getLeft(), getTop(), width, height);
         draw(c);
         return b;
+    }
+
+    public void updateBitmap(){
+        rendererBitmap = null;
+        postInvalidate();
     }
 
     @Override

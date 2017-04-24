@@ -17,11 +17,11 @@
         android:id="@+id/buildAtomLayout">
 
         <LinearLayout
-            android:layout_width="70dp"
+            android:layout_width="60dp"
             android:layout_height="match_parent"
             android:weightSum="1"
             android:orientation="vertical"
-            android:background="#cb787878"
+            android:animateLayoutChanges="true"
             android:id="@+id/toolBarLayout">
 
             <ScrollView
@@ -41,6 +41,11 @@
 
             </ScrollView>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"/>
+
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -55,31 +60,37 @@
 
                     <ImageButton
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/bond_single"
-                        android:id="@+id/singleBondButton" />
+                        android:id="@+id/singleBondButton"
+                        android:layout_height="50dp" />
 
                     <ImageButton
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/bond_double"
-                        android:id="@+id/doubleBondButton" />
+                        android:id="@+id/doubleBondButton"
+                        android:layout_height="50dp" />
 
                     <ImageButton
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/bond_triple"
-                        android:id="@+id/tripleBondButton" />
+                        android:id="@+id/tripleBondButton"
+                        android:layout_height="50dp" />
 
                     <ImageButton
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_delete_black_24dp"
-                        android:id="@+id/deleteButton"/>
+                        android:id="@+id/deleteButton"
+                        android:layout_height="50dp" />
+
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:src="@drawable/ic_delete_sweep_black_24dp"
+                        android:id="@+id/deleteSweepButton"
+                        android:layout_height="50dp" />
 
                 </LinearLayout>
             </ScrollView>
@@ -89,6 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/canvasLayout">
+
 
         </RelativeLayout>
 

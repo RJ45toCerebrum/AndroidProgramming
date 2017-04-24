@@ -16,7 +16,7 @@ import java.net.URL;
  * This is for making Http requests to download files as strings
  */
 
-class PostRequest extends AsyncTask<String, String, String>
+class PostRequest extends AsyncTask<String, Integer, String>
 {
     private IAsyncResult caller = null;
 
@@ -36,7 +36,7 @@ class PostRequest extends AsyncTask<String, String, String>
         return Download(url);
     }
 
-    private static String Download(String urlString)
+    private String Download(String urlString)
     {
         String resultToDisplay = "";
 
@@ -70,6 +70,12 @@ class PostRequest extends AsyncTask<String, String, String>
         }
 
         return resultToDisplay;
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... values) {
+        super.onProgressUpdate(values);
+
     }
 
 

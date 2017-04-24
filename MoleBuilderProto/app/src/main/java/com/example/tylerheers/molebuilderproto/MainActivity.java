@@ -2,15 +2,20 @@ package com.example.tylerheers.molebuilderproto;
 
 
 import android.content.res.Configuration;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,10 +39,9 @@ import java.util.Stack;
 
 import javax.vecmath.Point2d;
 
-//TODO: Double bonds and triple bonding in 3D renderer
-//TODO: Update the panning and zooming
-//TODO: Add the undo action capability
-//TODO: fix any bugs
+
+//TODO: update initial atom and mole position when created
+//TODO: fix bad bugs; not all bugs
 //TODO: update the UI to make look better then DONE!
 public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener,
@@ -51,16 +55,15 @@ public class MainActivity extends AppCompatActivity
     private TextView sceneText;
 
     private RelativeLayout canvasLayout;
-    SurfaceView surfView;
+    private LinearLayout toolbarLayout;
+    private SurfaceView surfView;
     private MoleRenderer2D moleRenderer;
     private MoleRenderer3D moleRenderer3D;
     private HashMap<Integer, ImageButton> actionButtons;
     private SearchMoleDialog diag;
 
+    private ProgressBar convertMoleProgress;
 
-    // TODO: implement undo data structure and find out better way
-    private Stack<Action> actions = new Stack<>();
-    //private ImageButton undoButton;
 
 
     @Override
@@ -84,6 +87,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
+        toolbarLayout = (LinearLayout) findViewById(R.id.toolBarLayout);
 
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             sceneText = (TextView) findViewById(R.id.sceneInfoTextView);
@@ -147,13 +151,23 @@ public class MainActivity extends AppCompatActivity
                     button.setElement(Elements.Oxygen);
                     button.setText(Elements.OXYGEN.getSymbol());
                     break;
+                case "phosphorus":
+                    button = new AtomButton(this);
+                    button.setElement(Elements.Phosphorus);
+                    button.setText(Elements.PHOSPHORUS.getSymbol());
+                    break;
+                case "sulfur":
+                    button = new AtomButton(this);
+                    button.setElement(Elements.Sulfur);
+                    button.setText(Elements.SULFUR.getSymbol());
+                    break;
             }
 
             if(button == null)
                 continue;
 
             button.setLayoutParams(atomButtonLayout.getLayoutParams());
-            button.getLayoutParams().height = 230;
+            button.getLayoutParams().height = 190;
 
             atomButtonLayout.addView(button);
             button.setClickable(true);
@@ -169,7 +183,7 @@ public class MainActivity extends AppCompatActivity
         periodicTableButton.setImageResource(R.drawable.periodic_table);
         periodicTableButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
         periodicTableButton.setLayoutParams(atomButtonLayout.getLayoutParams());
-        periodicTableButton.getLayoutParams().height = 230;
+        periodicTableButton.getLayoutParams().height = 220;
 
         atomButtonLayout.addView(periodicTableButton);
         periodicTableButton.setClickable(true);
@@ -219,25 +233,12 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        ImageButton undoButton = (ImageButton)findViewById(R.id.undoActionButton);
-        undoButton.setOnClickListener(new View.OnClickListener()
-        {
+        ImageButton deleteSweep = (ImageButton) findViewById(R.id.deleteSweepButton);
+        deleteSweep.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
-                Action action = actions.pop();
-                Toast.makeText(MainActivity.this, action.getActionType().toString(), Toast.LENGTH_LONG).show();
-                switch (action.getActionType())
-                {
-                    case Add:
-                        moleRenderer.undoAdd(action.getObjIDList(), action.getClassType());
-                        break;
-                    case Delete:
-                        break;
-                    case Manipulation:
-                        break;
-
-                }
+            public void onClick(View v) {
+                sceneContainer.clearScene();
+                moleRenderer.updateBitmap();
             }
         });
 
@@ -246,18 +247,23 @@ public class MainActivity extends AppCompatActivity
         actionButtons.put(R.id.singleBondButton, singleBondButton);
         actionButtons.put(R.id.doubleBondButton, doubleBondButton);
         actionButtons.put(R.id.tripleBondButton, tripleBondButton);
-        actionButtons.put(R.id.undoActionButton, undoButton);
     }
 
     private void init3DButton()
     {
-
         ImageButton to3DButton = (ImageButton) findViewById(R.id.to3DButton);
         to3DButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
+                v.setPivotX(v.getWidth());
+                v.setPivotY(v.getMeasuredHeight()/2);
+                Animation buttonRotationAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.rotate_button);
+                buttonRotationAnim.setDuration(1000);
+                v.startAnimation(buttonRotationAnim);
+
+
                 if(moleRenderer3D == null)
                 {
                     if (sceneContainer.selectedMolecule == null) {
@@ -271,7 +277,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 else
                     initRenderer2D();
-
             }
         });
 
@@ -280,6 +285,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initRenderer2D()
     {
+        toolbarLayout.setVisibility(View.VISIBLE);
         canvasLayout.removeAllViewsInLayout();
         moleRenderer3D = null;
 
@@ -319,6 +325,17 @@ public class MainActivity extends AppCompatActivity
             canvasLayout.addView(surfView);
     }
 
+    private void initProgressBar()
+    {
+        convertMoleProgress = new ProgressBar(this);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        convertMoleProgress.setLayoutParams(params);
+        convertMoleProgress.setIndeterminate(true);
+        canvasLayout.addView(convertMoleProgress);
+    }
+
     private void sendTo3DRenderer()
     {
         try
@@ -332,6 +349,7 @@ public class MainActivity extends AppCompatActivity
                     smilesStr);
 
             new PostRequest(this).execute(url);
+            initProgressBar();
         }
         catch (CloneNotSupportedException ex) {
             Log.e("Clone Exception", ex.getMessage());
@@ -344,10 +362,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void addAction(Action action) {
-        actions.push(action);
-    }
-
     @Override
     public void onPostExecute(String results)
     {
@@ -357,11 +371,14 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
+        toolbarLayout.setVisibility(View.INVISIBLE);
         IAtomContainer molecule = SdfConverter.convertSDFString(results);
         if(molecule != null)
             initRenderer3D(molecule);
         else
             Toast.makeText(this, "Sorry, Could not construct Molecule", Toast.LENGTH_LONG).show();
+
+        convertMoleProgress = null;
     }
 
     @Override
