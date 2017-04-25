@@ -143,7 +143,7 @@ class MoleRenderer3D extends Renderer
     {
         cam = new org.rajawali3d.cameras.Camera();
         cam.enableLookAt();
-        cam.setPosition(0, 0, 5);
+        cam.setPosition(0, 0, 15);
         cam.setLookAt(0.0f, 0.0f, 0.0f);
         cam.setFarPlane(1000);
         cam.setNearPlane(1);
@@ -223,7 +223,7 @@ class MoleRenderer3D extends Renderer
                 double z = point.getZ();
                 Sphere atom = createAtom(getColorID(a.getSymbol()), 0.3f);
                 if(a.getSymbol().equals("H"))
-                    atom.setScale(0.2f);
+                    atom.setScale(0.3f);
 
                 atom.setPosition(x, y, z);
 

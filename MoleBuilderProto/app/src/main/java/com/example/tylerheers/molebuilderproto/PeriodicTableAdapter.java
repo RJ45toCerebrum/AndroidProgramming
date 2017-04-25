@@ -14,13 +14,13 @@ class PeriodicTableAdapter extends BaseAdapter
 {
     private ArrayList<Elements> es;
     private Context context;
-    private MoleRenderer2D moleRenderer;
+    private MainActivity mainActivity;
     private PeriodicTable pt;
 
-    PeriodicTableAdapter(Context c, PeriodicTable pt,  MoleRenderer2D moleRenderer)
+    PeriodicTableAdapter(Context c, PeriodicTable pt,  MainActivity ma)
     {
         this.pt = pt;
-        this.moleRenderer = moleRenderer;
+        this.mainActivity = ma;
         context = c;
         es = new ArrayList<>(54);
         for(int i = 1; i < 54; i++)
@@ -65,8 +65,7 @@ class PeriodicTableAdapter extends BaseAdapter
         {
             @Override
             public void onClick(View v) {
-                AtomButton atomButton = (AtomButton)v;
-                moleRenderer.addAtom(atomButton.getElement());
+                mainActivity.setSelectedButton(v);
                 pt.dismiss();
             }
         });

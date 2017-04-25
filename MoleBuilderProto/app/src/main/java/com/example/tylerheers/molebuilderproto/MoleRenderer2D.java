@@ -28,6 +28,7 @@ import org.openscience.cdk.isomorphism.matchers.CTFileQueryBond;
 import java.lang.annotation.ElementType;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -125,7 +126,7 @@ public class MoleRenderer2D extends View
         };
     }
 
-    public void addAtom(Elements atom)
+    public void addAtom(Elements atom, Point2d placement)
     {
         int atomCount = sceneContainer.getAtomCount();
         if(atomCount < MainActivity.maxAtoms)
@@ -134,7 +135,7 @@ public class MoleRenderer2D extends View
 
             MoleculeAtom newAtom = new MoleculeAtom(atom);
             newAtom.setID("atom"+String.valueOf(atomCount+1));
-            newAtom.setPoint2d(new Point2d(panX + getWidth()/2, panY + getHeight()/2));
+            newAtom.setPoint2d(new Point2d(panX + placement.x, panY + placement.y));
             newAtom.setImplicitHydrogenCount(0);
             newAtom.setFormalCharge(0);
             sceneContainer.putAtom(newAtom);
@@ -241,16 +242,28 @@ public class MoleRenderer2D extends View
 
     public void deleteSelected()
     {
-        for (IAtom a: atomSelectionQ)
+        List<Pair<MoleculeAtom, Molecule>> atomsToDel = new ArrayList<>();
+        for (IAtom a : atomSelectionQ)
         {
-            MoleculeAtom atom = (MoleculeAtom)a;
+            MoleculeAtom atom = (MoleculeAtom) a;
             sceneContainer.delAtom(atom.getID());
 
-            for(Molecule mole : sceneContainer.getMolecules())
+            for (Molecule mole : sceneContainer.getMolecules())
             {
-                if(mole.contains(atom))
-                    mole.removeAtom(atom);
+                if (mole.contains(atom))
+                {
+                    Pair<MoleculeAtom, Molecule> p = new Pair<>();
+                    p.first = atom;
+                    p.second = mole;
+                    atomsToDel.add(p);
+                }
             }
+        }
+
+        for (Pair<MoleculeAtom, Molecule> p : atomsToDel)
+        {
+            Molecule m = sceneContainer.getMolecule(p.second.getID());
+            m.removeAtom(p.first);
         }
 
         rendererBitmap = null;
@@ -424,6 +437,13 @@ public class MoleRenderer2D extends View
             case MotionEvent.ACTION_DOWN:
                 screenShotTimer.cancel();
                 lastPointerLoc.set(event.getX(), event.getY());
+
+                if(moleculeActivity.getCurrentMode() == MainActivity.Mode.AddAtom)
+                {
+                    Elements e = moleculeActivity.getCurrentElement();
+                    if(e != null)
+                        addAtom(e, lastPointerLoc);
+                }
                 break;
 
             case MotionEvent.ACTION_MOVE:

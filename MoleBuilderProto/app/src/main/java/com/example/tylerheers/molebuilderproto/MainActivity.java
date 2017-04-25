@@ -21,6 +21,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.openscience.cdk.Atom;
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.interfaces.IAtomContainer;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity
 
     private RelativeLayout canvasLayout;
     private LinearLayout toolbarLayout;
+    private int toolBarWidth;
     private SurfaceView surfView;
     private MoleRenderer2D moleRenderer;
     private MoleRenderer3D moleRenderer3D;
@@ -81,6 +83,8 @@ public class MainActivity extends AppCompatActivity
         {
             @Override
             public void onClick(View v) {
+                currentMode = Mode.Selection;
+                updateModeButtonColors();
                 diag = new SearchMoleDialog();
                 diag.setRenderer2D(moleRenderer);
                 diag.show(getFragmentManager(), "123");
@@ -89,6 +93,7 @@ public class MainActivity extends AppCompatActivity
 
         canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
         toolbarLayout = (LinearLayout) findViewById(R.id.toolBarLayout);
+        toolBarWidth = toolbarLayout.getLayoutParams().width;
 
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             sceneText = (TextView) findViewById(R.id.sceneInfoTextView);
@@ -171,10 +176,9 @@ public class MainActivity extends AppCompatActivity
 
             button.setLayoutParams(atomButtonLayout.getLayoutParams());
             button.getLayoutParams().height = 190;
-
-            atomButtonLayout.addView(button);
             button.setClickable(true);
             button.setOnClickListener(this);
+            atomButtonLayout.addView(button);
 
             modeButtons.add(button);
         }
@@ -193,6 +197,11 @@ public class MainActivity extends AppCompatActivity
             }
         });
         selectionButton.setElevation(7);
+
+        // this is to get the view at the bottom of the linear layout
+        // even though its defined in the xml
+        atomButtonLayout.removeView(selectionButton);
+        atomButtonLayout.addView(selectionButton);
         modeButtons.add(selectionButton);
 
         ImageButton panZoomButton = (ImageButton)findViewById(R.id.panZoomButton);
@@ -206,6 +215,9 @@ public class MainActivity extends AppCompatActivity
             }
         });
         panZoomButton.setElevation(7);
+        atomButtonLayout.removeView(panZoomButton);
+        atomButtonLayout.addView(panZoomButton);
+
         modeButtons.add(panZoomButton);
     }
 
@@ -228,7 +240,7 @@ public class MainActivity extends AppCompatActivity
                 currentMode = Mode.AddAtom;
                 selectedButton = v;
                 PeriodicTable pt = PeriodicTable.newInstance(0);
-                pt.setMoleRenderer(moleRenderer);
+                pt.setMainActivity((MainActivity) v.getContext());
                 pt.show(getFragmentManager(), "123");
             }
         });
@@ -293,9 +305,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                v.setPivotX(v.getWidth());
-                v.setPivotY(v.getMeasuredHeight()/2);
-                Animation buttonRotationAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.rotate_button);
+                Animation buttonRotationAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_up_down);
                 buttonRotationAnim.setDuration(1000);
                 v.startAnimation(buttonRotationAnim);
 
@@ -315,11 +325,16 @@ public class MainActivity extends AppCompatActivity
                     initRenderer2D();
             }
         });
+
+        float centreX = to3DButton.getX() + to3DButton.getWidth()  / 2;
+        float centerY = to3DButton.getY() + to3DButton.getHeight() / 2;
+        to3DButton.setPivotX(centreX);
+        to3DButton.setPivotY(centerY);
     }
 
     private void initRenderer2D()
     {
-        toolbarLayout.setVisibility(View.VISIBLE);
+        showToolBar(true);
         canvasLayout.removeAllViewsInLayout();
         moleRenderer3D = null;
 
@@ -329,6 +344,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initRenderer3D(IAtomContainer mole)
     {
+        showToolBar(false);
         canvasLayout.removeAllViewsInLayout();
         moleRenderer = null;
         moleRenderer3D= null;
@@ -376,7 +392,6 @@ public class MainActivity extends AppCompatActivity
         {
             IAtomContainer container = sceneContainer.selectedMolecule.clone();
             String smilesStr = Molecule.generateSmilesString(container);
-            Log.i("Smiles", smilesStr);
 
             String url = String.format(
                     "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/SDF?record_type=3d",
@@ -405,7 +420,7 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        toolbarLayout.setVisibility(View.INVISIBLE);
+        showToolBar(false);
         IAtomContainer molecule = SdfConverter.convertSDFString(results);
         if(molecule != null)
             initRenderer3D(molecule);
@@ -415,16 +430,13 @@ public class MainActivity extends AppCompatActivity
         convertMoleProgress = null;
     }
 
-    // onClick excuted when atom buttons clicked
+    // onClick executed when atom buttons clicked
     @Override
     public void onClick(View v)
     {
         currentMode = Mode.AddAtom;
         selectedButton = v;
         updateModeButtonColors();
-        AtomButton atomButton = (AtomButton)v;
-        selectedButton = atomButton;
-        moleRenderer.addAtom(atomButton.getElement());
     }
 
     private void updateModeButtonColors()
@@ -438,7 +450,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public void setSelectedButton(View v){
+        updateModeButtonColors();
+        selectedButton = v;
+    }
+
     public Mode getCurrentMode() {return currentMode;}
+
+    public Elements getCurrentElement()
+    {
+        if(currentMode == Mode.AddAtom && selectedButton != null) {
+            AtomButton ab = (AtomButton) selectedButton;
+            return ab.getElement();
+        }
+
+        return null;
+    }
 
     private void updateSceneText()
     {
@@ -449,6 +476,20 @@ public class MainActivity extends AppCompatActivity
             String numMoleculesText = String.format("Number of Molecules: %d", sceneContainer.getMoleculeCount());
             numAtomsText += numBondsText + numMoleculesText;
             sceneText.setText(numAtomsText);
+        }
+    }
+
+    private void showToolBar(boolean show)
+    {
+        if(show) {
+            toolbarLayout.setVisibility(View.VISIBLE);
+            ViewGroup.LayoutParams layoutParams = toolbarLayout.getLayoutParams();
+            layoutParams.width = toolBarWidth;
+        }
+        else {
+            toolbarLayout.setVisibility(View.INVISIBLE);
+            ViewGroup.LayoutParams layoutParams = toolbarLayout.getLayoutParams();
+            layoutParams.width = 0;
         }
     }
 

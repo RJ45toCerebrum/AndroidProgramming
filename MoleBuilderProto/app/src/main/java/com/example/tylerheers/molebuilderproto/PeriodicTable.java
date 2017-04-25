@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class PeriodicTable extends DialogFragment
 {
     int theme;
-    MoleRenderer2D moleRenderer;
+    MainActivity mainActivity;
 
     static PeriodicTable newInstance(int themeNumber)
     {
@@ -49,11 +49,11 @@ public class PeriodicTable extends DialogFragment
     {
         View v = inflater.inflate(R.layout.periodic_table_dialog, container, false);
         GridView gv = (GridView) v.findViewById(R.id.periodicTableView);
-        gv.setAdapter(new PeriodicTableAdapter(getActivity(), this, moleRenderer));
+        gv.setAdapter(new PeriodicTableAdapter(getActivity(), this, mainActivity));
         return v;
     }
 
-    void setMoleRenderer(MoleRenderer2D mr) {
-        moleRenderer = mr;
+    void setMainActivity(MainActivity mr) {
+        mainActivity = mr;
     }
 }

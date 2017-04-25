@@ -82,12 +82,6 @@
                         android:layout_height="50dp"
                         android:elevation="0dp" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@android:color/darker_gray"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginBottom="1dp"/>
 
                     <ImageButton
                         android:layout_width="match_parent"
@@ -96,12 +90,6 @@
                         android:id="@+id/doubleBondButton"
                         android:layout_height="50dp" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@android:color/darker_gray"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginBottom="1dp"/>
 
                     <ImageButton
                         android:layout_width="match_parent"
@@ -110,12 +98,6 @@
                         android:id="@+id/tripleBondButton"
                         android:layout_height="50dp" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@android:color/darker_gray"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginBottom="1dp"/>
 
                     <ImageButton
                         android:layout_width="match_parent"
@@ -124,12 +106,6 @@
                         android:id="@+id/deleteButton"
                         android:layout_height="50dp" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@android:color/darker_gray"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginBottom="1dp"/>
 
                     <ImageButton
                         android:layout_width="match_parent"

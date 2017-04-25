@@ -45,6 +45,7 @@ public class SearchMoleDialog extends DialogFragment
     RadioGroup radioGroup;
     MoleRenderer2D renderer2D;
     View searchMoleView;
+    ProgressBar progressBar;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
@@ -102,8 +103,8 @@ public class SearchMoleDialog extends DialogFragment
                 url = String.format("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/SDF", moleculeName);
 
             requestSDF.execute(url);
-            ProgressBar bar = (ProgressBar) searchMoleView.findViewById(R.id.moleSearchProgressBar);
-            bar.setVisibility(View.VISIBLE);
+            progressBar = (ProgressBar) searchMoleView.findViewById(R.id.moleSearchProgressBar);
+            progressBar.setVisibility(View.VISIBLE);
         }
     }
 
@@ -112,6 +113,7 @@ public class SearchMoleDialog extends DialogFragment
     {
         if(results == null) {
             Toast.makeText(getActivity().getBaseContext(), "Could not find molecule", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
             return;
         }
 
@@ -120,16 +122,22 @@ public class SearchMoleDialog extends DialogFragment
             IAtomContainer con = SdfConverter.convertSDFString(results);
             if(con != null)
             {
-                if(con.getAtomCount() >= SceneContainer.maxAtomsForMolecule){
+                if(con.getAtomCount() >= SceneContainer.maxAtomsForMolecule)
+                {
                     Toast.makeText(getActivity().getBaseContext(), "Unable to build Molecules with over 60 atoms",
                             Toast.LENGTH_LONG).show();
+                    progressBar.setVisibility(View.INVISIBLE);
                 }
 
                 Molecule mole = Molecule.convertAtomContainer(con);
                 SceneContainer.getInstance().putMolecule(mole);
                 if(mole == null)
+                {
                     Toast.makeText(getActivity().getBaseContext(), "Sorry! Something went wrong molecule building",
-                                   Toast.LENGTH_LONG).show();
+                            Toast.LENGTH_LONG).show();
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+
                 else
                     renderer2D.addMolecule(mole);
             }
