@@ -430,33 +430,39 @@ public class MoleRenderer2D extends View
                 rendererBitmap = null;
                 dx = (event.getX() - lastPointerLoc.getX());
                 dy = (event.getY() - lastPointerLoc.getY());
-                if (selectedAtom != null)
-                {
-                    for (IAtom a : atomSelectionQ)
-                    {
-                        Point2d atomPoint = a.getPoint2d();
-                        atomPoint.setX(atomPoint.getX() + dx);
-                        atomPoint.setY(atomPoint.getY() + dy);
-                    }
-                }
-                if (sceneContainer.selectedMolecule != null) {
-                    Point2d newPoint = new Point2d(event.getX(), event.getY());
-                    GeometryUtil.translate2DCenterTo(sceneContainer.selectedMolecule, newPoint);
-                }
 
-                // Dragging; pan by translating atoms; No difference
-                if(selectedAtom == null && sceneContainer.selectedMolecule == null)
+                // for moving selected molecules
+                if(moleculeActivity.getCurrentMode() == MainActivity.Mode.Selection)
                 {
-                    for (IAtom a: sceneContainer.getAtoms()) {
-                        Point2d atomPoint = a.getPoint2d();
-                        atomPoint.setX(atomPoint.getX() + dx);
-                        atomPoint.setY(atomPoint.getY() + dy);
-                    }
-                    for (Molecule m: sceneContainer.getMolecules()) {
-                        for (IAtom a: m.atoms()) {
+                    if (selectedAtom != null) {
+                        for (IAtom a : atomSelectionQ) {
                             Point2d atomPoint = a.getPoint2d();
                             atomPoint.setX(atomPoint.getX() + dx);
                             atomPoint.setY(atomPoint.getY() + dy);
+                        }
+                    }
+                    if (sceneContainer.selectedMolecule != null) {
+                        Point2d newPoint = new Point2d(event.getX(), event.getY());
+                        GeometryUtil.translate2DCenterTo(sceneContainer.selectedMolecule, newPoint);
+                    }
+                }
+
+                // Dragging; pan by translating atoms; No difference
+                if(moleculeActivity.getCurrentMode() == MainActivity.Mode.PanZoom)
+                {
+                    if (selectedAtom == null && sceneContainer.selectedMolecule == null)
+                    {
+                        for (IAtom a : sceneContainer.getAtoms()) {
+                            Point2d atomPoint = a.getPoint2d();
+                            atomPoint.setX(atomPoint.getX() + dx);
+                            atomPoint.setY(atomPoint.getY() + dy);
+                        }
+                        for (Molecule m : sceneContainer.getMolecules()) {
+                            for (IAtom a : m.atoms()) {
+                                Point2d atomPoint = a.getPoint2d();
+                                atomPoint.setX(atomPoint.getX() + dx);
+                                atomPoint.setY(atomPoint.getY() + dy);
+                            }
                         }
                     }
                 }
@@ -482,9 +488,14 @@ public class MoleRenderer2D extends View
         Point2d selectionPoint = new Point2d(0,0);
 
         @Override
-        public boolean onDown(MotionEvent e) {
-            selection(e);
-            return true;
+        public boolean onDown(MotionEvent e)
+        {
+            if(moleculeActivity.getCurrentMode() == MainActivity.Mode.Selection) {
+                selection(e);
+                return true;
+            }
+
+            return false;
         }
 
         @Override
@@ -499,17 +510,20 @@ public class MoleRenderer2D extends View
 
         public void onLongPress(MotionEvent e)
         {
-            IAtom a = selectClosestAtom(e.getX(), e.getY());
-            if(a != null)
+            if(moleculeActivity.getCurrentMode() == MainActivity.Mode.Selection)
             {
-                MoleculeAtom alreadySelectedAtom = (MoleculeAtom)a;
-                Molecule mole = alreadySelectedAtom.getMolecule();
-                if(mole != null)
+                IAtom a = selectClosestAtom(e.getX(), e.getY());
+                if (a != null)
                 {
-                    sceneContainer.selectedMolecule = mole;
-                    for (IAtom atom: mole.atoms()) {
-                        if(atom != alreadySelectedAtom || !atomSelectionQ.contains(atom))
-                            atomSelectionQ.add((MoleculeAtom) atom);
+                    MoleculeAtom alreadySelectedAtom = (MoleculeAtom) a;
+                    Molecule mole = alreadySelectedAtom.getMolecule();
+                    if (mole != null)
+                    {
+                        sceneContainer.selectedMolecule = mole;
+                        for (IAtom atom : mole.atoms()) {
+                            if (atom != alreadySelectedAtom || !atomSelectionQ.contains(atom))
+                                atomSelectionQ.add((MoleculeAtom) atom);
+                        }
                     }
                 }
             }
@@ -565,15 +579,19 @@ public class MoleRenderer2D extends View
         @Override
         public boolean onScale(ScaleGestureDetector detector)
         {
-            Log.i("Stuff", "Scalling");
-            scaleFactor *= detector.getScaleFactor();
-            scaleFactor = Math.max(0.3f, Math.min(scaleFactor, 1.5f));
+            if(moleculeActivity.getCurrentMode() == MainActivity.Mode.PanZoom)
+            {
+                scaleFactor *= detector.getScaleFactor();
+                scaleFactor = Math.max(0.3f, Math.min(scaleFactor, 1.5f));
 
-            focusX = detector.getFocusX ();
-            focusY = detector.getFocusY ();
+                focusX = detector.getFocusX();
+                focusY = detector.getFocusY();
 
-            postInvalidate();
-            return true;
+                postInvalidate();
+                return true;
+            }
+
+            return false;
         }
 
     }

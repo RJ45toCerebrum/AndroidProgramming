@@ -2,16 +2,17 @@ package com.example.tylerheers.molebuilderproto;
 
 
 import android.content.res.Configuration;
-import android.support.v7.app.ActionBar;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,24 +21,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.openscience.cdk.atomtype.CDKAtomTypeMatcher;
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.exception.CDKException;
-import org.openscience.cdk.geometry.GeometryUtil;
-import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.interfaces.IBond;
-import org.openscience.cdk.smiles.SmiFlavor;
-import org.openscience.cdk.smiles.SmilesGenerator;
 import org.rajawali3d.view.ISurface;
 import org.rajawali3d.view.SurfaceView;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.Stack;
-
-import javax.vecmath.Point2d;
+import java.util.List;
 
 
 //TODO: update initial atom and mole position when created
@@ -48,8 +41,16 @@ public class MainActivity extends AppCompatActivity
                                      IAsyncResult<String>,
                                      SceneContainer.SceneChangeListener
 {
+    enum Mode
+    {
+        AddAtom, Selection, PanZoom
+    }
+
     public static int maxAtoms = 30;
     public static int maxSelectedAtoms = 10;
+
+    Mode currentMode = Mode.AddAtom;
+    View selectedButton = null;
 
     SceneContainer sceneContainer;
     private TextView sceneText;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity
     private SurfaceView surfView;
     private MoleRenderer2D moleRenderer;
     private MoleRenderer3D moleRenderer3D;
-    private HashMap<Integer, ImageButton> actionButtons;
+    private List<View> modeButtons;
     private SearchMoleDialog diag;
 
     private ProgressBar convertMoleProgress;
@@ -95,9 +96,9 @@ public class MainActivity extends AppCompatActivity
         }
 
         initRenderer2D();
-        initAtomButtonList();
-        initPeriodicTableButton();
         initModeButtons();
+        initImmediateActionButtons();
+        updateModeButtonColors();
     }
 
     protected void onPause() {
@@ -121,8 +122,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void initAtomButtonList()
+    private void initModeButtons()
     {
+        modeButtons = new ArrayList<>(12);
+
         LinearLayout atomButtonLayout = (LinearLayout)findViewById(R.id.atomScrollViewLayout);
         String[] elementsArray = getResources().getStringArray(R.array.elements);
 
@@ -172,8 +175,38 @@ public class MainActivity extends AppCompatActivity
             atomButtonLayout.addView(button);
             button.setClickable(true);
             button.setOnClickListener(this);
+
+            modeButtons.add(button);
         }
 
+        initPeriodicTableButton();
+
+        ImageButton selectionButton = (ImageButton) findViewById(R.id.selectionButton);
+        selectionButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                currentMode = Mode.Selection;
+                selectedButton = v;
+                updateModeButtonColors();
+            }
+        });
+        selectionButton.setElevation(7);
+        modeButtons.add(selectionButton);
+
+        ImageButton panZoomButton = (ImageButton)findViewById(R.id.panZoomButton);
+        panZoomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                currentMode = Mode.PanZoom;
+                selectedButton = v;
+                updateModeButtonColors();
+            }
+        });
+        panZoomButton.setElevation(7);
+        modeButtons.add(panZoomButton);
     }
 
     private void initPeriodicTableButton()
@@ -190,17 +223,23 @@ public class MainActivity extends AppCompatActivity
         periodicTableButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
+                currentMode = Mode.AddAtom;
+                selectedButton = v;
                 PeriodicTable pt = PeriodicTable.newInstance(0);
                 pt.setMoleRenderer(moleRenderer);
                 pt.show(getFragmentManager(), "123");
             }
         });
+        periodicTableButton.setElevation(7);
+
+        modeButtons.add(periodicTableButton);
     }
 
-    private void initModeButtons()
+
+    private void initImmediateActionButtons()
     {
-        actionButtons = new HashMap<>(6);
         ImageButton singleBondButton = (ImageButton) findViewById(R.id.singleBondButton);
         singleBondButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -208,6 +247,7 @@ public class MainActivity extends AppCompatActivity
                 moleRenderer.addBond(IBond.Order.SINGLE);
             }
         });
+
 
         ImageButton doubleBondButton = (ImageButton) findViewById(R.id.doubleBondButton);
         doubleBondButton.setOnClickListener(new View.OnClickListener() {
@@ -243,10 +283,6 @@ public class MainActivity extends AppCompatActivity
         });
 
         init3DButton();
-
-        actionButtons.put(R.id.singleBondButton, singleBondButton);
-        actionButtons.put(R.id.doubleBondButton, doubleBondButton);
-        actionButtons.put(R.id.tripleBondButton, tripleBondButton);
     }
 
     private void init3DButton()
@@ -279,8 +315,6 @@ public class MainActivity extends AppCompatActivity
                     initRenderer2D();
             }
         });
-
-        actionButtons.put(R.id.to3DButton, to3DButton);
     }
 
     private void initRenderer2D()
@@ -381,12 +415,30 @@ public class MainActivity extends AppCompatActivity
         convertMoleProgress = null;
     }
 
+    // onClick excuted when atom buttons clicked
     @Override
     public void onClick(View v)
     {
+        currentMode = Mode.AddAtom;
+        selectedButton = v;
+        updateModeButtonColors();
         AtomButton atomButton = (AtomButton)v;
+        selectedButton = atomButton;
         moleRenderer.addAtom(atomButton.getElement());
     }
+
+    private void updateModeButtonColors()
+    {
+        for (View v: modeButtons)
+        {
+            if(v == selectedButton)
+                v.setBackgroundTintMode(PorterDuff.Mode.DARKEN);
+            else
+                v.setBackgroundTintMode(PorterDuff.Mode.LIGHTEN);
+        }
+    }
+
+    public Mode getCurrentMode() {return currentMode;}
 
     private void updateSceneText()
     {
