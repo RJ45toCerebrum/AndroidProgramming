@@ -33,8 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
-//TODO: update initial atom and mole position when created
 //TODO: fix bad bugs; not all bugs
 //TODO: update the UI to make look better then DONE!
 public class MainActivity extends AppCompatActivity
@@ -411,34 +409,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onPostExecute(String results)
-    {
-        if(results == null) {
-            Toast.makeText(this, "Could not find molecule", Toast.LENGTH_LONG).show();
-            initRenderer2D();
-            return;
-        }
-
-        showToolBar(false);
-        IAtomContainer molecule = SdfConverter.convertSDFString(results);
-        if(molecule != null)
-            initRenderer3D(molecule);
-        else
-            Toast.makeText(this, "Sorry, Could not construct Molecule", Toast.LENGTH_LONG).show();
-
-        convertMoleProgress = null;
-    }
-
-    // onClick executed when atom buttons clicked
-    @Override
-    public void onClick(View v)
-    {
-        currentMode = Mode.AddAtom;
-        selectedButton = v;
-        updateModeButtonColors();
-    }
-
     private void updateModeButtonColors()
     {
         for (View v: modeButtons)
@@ -491,6 +461,34 @@ public class MainActivity extends AppCompatActivity
             ViewGroup.LayoutParams layoutParams = toolbarLayout.getLayoutParams();
             layoutParams.width = 0;
         }
+    }
+
+    @Override
+    public void onPostExecute(String results)
+    {
+        if(results == null) {
+            Toast.makeText(this, "Could not find molecule", Toast.LENGTH_LONG).show();
+            initRenderer2D();
+            return;
+        }
+
+        showToolBar(false);
+        IAtomContainer molecule = SdfConverter.convertSDFString(results);
+        if(molecule != null)
+            initRenderer3D(molecule);
+        else
+            Toast.makeText(this, "Sorry, Could not construct Molecule", Toast.LENGTH_LONG).show();
+
+        convertMoleProgress = null;
+    }
+
+    // onClick executed when atom buttons clicked
+    @Override
+    public void onClick(View v)
+    {
+        currentMode = Mode.AddAtom;
+        selectedButton = v;
+        updateModeButtonColors();
     }
 
     @Override
