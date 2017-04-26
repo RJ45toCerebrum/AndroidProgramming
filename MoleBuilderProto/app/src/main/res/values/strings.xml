@@ -1,11 +1,16 @@
 <resources>
     <string name="app_name">MoleBuilderProto</string>
-    <string name="make_carbon">Make Carbon</string>
-    <string name="search_mole_button">Search Mole&#8230;</string>
+    <string name="search_mole_button">Search Molecule on
+        <a href="https://pubchem.ncbi.nlm.nih.gov/">PubChem</a>
+    </string>
+    <string name="convert_molecule_text">Convert the Molecule to its 3D form</string>
     <string name="search_cid">CID</string>
     <string name="search_name">Name</string>
     <string name="search_smiles">Smiles</string>
-
+    <string name="close_text">Close</string>
+    <string name="video_demon">Video Demonstration can be found
+        <a href="https://www.youtube.com/watch?v=DgBhbgMC8p0">here</a>
+    </string>
     <string-array name="elements">
         <item>hydrogen</item>
         <item>carbon</item>

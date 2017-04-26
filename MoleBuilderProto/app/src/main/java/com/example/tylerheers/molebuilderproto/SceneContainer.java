@@ -37,7 +37,7 @@ class SceneContainer
     private HashMap<String, MoleculeAtom> atoms = new HashMap<>();
     private HashMap<String, Molecule> molecules = new HashMap<>();
 
-    public static final int maxAtomsForMolecule = 60;
+    static final int maxAtomsForMolecule = 100;
 
     Molecule selectedMolecule = null;
 

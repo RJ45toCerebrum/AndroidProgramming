@@ -127,6 +127,7 @@ public class SearchMoleDialog extends DialogFragment
                     Toast.makeText(getActivity().getBaseContext(), "Unable to build Molecules with over 60 atoms",
                             Toast.LENGTH_LONG).show();
                     progressBar.setVisibility(View.INVISIBLE);
+                    return;
                 }
 
                 Molecule mole = Molecule.convertAtomContainer(con);

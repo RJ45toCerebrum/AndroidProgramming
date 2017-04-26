@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/scrollView">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_single_bond"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Creates a single bond between atoms"
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="10dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_double_bond"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Creates a double bond between atoms"
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="10dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_triple_bond"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Creates a triple bond between atoms"
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="10dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_search_black_24dp"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/search_mole_button"
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="10dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_3d_rotation_black_24dp"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Convert molecule into its 3D form.\nClick again to go back to 2D view."
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="5dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_pan_tool_black_24dp"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Select Atoms with this tool"
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="10dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_open_with_black_24dp"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Pan/Move and Zoom tool"
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="10dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_delete_black_24dp"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Delete ONLY selected atoms"
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="10dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_delete_sweep_black_24dp"
+                    android:layout_marginStart="10dp"
+                    android:minHeight="40dp"
+                    android:minWidth="50dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Delete ALL atoms"
+                    android:layout_marginStart="30dp"
+                    android:textAlignment="center"
+                    android:paddingTop="10dp"/>
+            </LinearLayout>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/video_demon"
+                android:id="@+id/video_demon"
+                android:textAlignment="center"
+                android:textSize="20sp"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/closeHelpDialog"
+                android:layout_marginBottom="6dp"
+                android:text="@string/close_text"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</RelativeLayout>

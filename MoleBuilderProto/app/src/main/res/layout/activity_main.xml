@@ -76,21 +76,21 @@
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/bond_single"
+                        android:src="@drawable/ic_single_bond"
                         android:id="@+id/singleBondButton" />
 
                     <ImageButton
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/bond_double"
+                        android:src="@drawable/ic_double_bond"
                         android:id="@+id/doubleBondButton" />
 
                     <ImageButton
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/bond_triple"
+                        android:src="@drawable/ic_triple_bond"
                         android:id="@+id/tripleBondButton" />
 
                     <ImageButton
@@ -134,20 +134,41 @@
         android:background="#cb787878"
         android:id="@+id/buttonLayout">
 
+
         <ImageButton
             android:layout_width="69dp"
             android:layout_height="match_parent"
             android:minWidth="80dp"
             android:id="@+id/startMoleSearch"
-            android:src="@drawable/ic_search_white_24dp" />
+            android:src="@drawable/ic_search_black_24dp" />
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:minWidth="80dp"
-            android:src="@drawable/ic_3d_rotation_white_24dp"
-            android:layout_marginLeft="35dp"
+            android:src="@drawable/ic_3d_rotation_black_24dp"
+            android:layout_marginStart="5dp"
             android:id="@+id/to3DButton"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:layout_marginStart="5dp"
+            android:src="@drawable/ic_help_outline_black_24dp"
+            android:id="@+id/helpButton"
+            style="@android:style/Widget.Holo.Light.ImageButton"
+            android:layout_gravity="center"/>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:layout_marginStart="5dp"
+            android:src="@drawable/ic_help_outline_black_24dp"
+            android:id="@+id/testingInfoCardButton"
+            style="@android:style/Widget.Holo.Light.ImageButton"
+            android:layout_gravity="center"/>
 
     </LinearLayout>
 

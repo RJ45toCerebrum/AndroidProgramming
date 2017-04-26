@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,6 +22,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openscience.cdk.Atom;
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.exception.CDKException;
@@ -33,8 +37,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-//TODO: fix bad bugs; not all bugs
-//TODO: update the UI to make look better then DONE!
+
+//TODO: Molecule information card; if available
+//TODO: Fix Bond distances and add colors or better text of the atoms in 2D-renderer
+//TODO: quick access sliding toolbar in the 2D renderer to quick access to the pan/move and selection tool
+//TODO: Undo actions
+//TODO: atom charge and name text in the 3D renderer
+//TODO: make the selection tool better via; drag box selection
 public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener,
                                      IAsyncResult<String>,
@@ -98,10 +107,22 @@ public class MainActivity extends AppCompatActivity
             updateSceneText();
         }
 
+        ImageButton helpDiagButton = (ImageButton) findViewById(R.id.helpButton);
+        helpDiagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HelpDialog helpDialog = new HelpDialog();
+                helpDialog.show(getFragmentManager(), "123");
+            }
+        });
+
         initRenderer2D();
         initModeButtons();
         initImmediateActionButtons();
         updateModeButtonColors();
+
+        // Test Code to delete
+        TestCode();
     }
 
     protected void onPause() {
@@ -505,4 +526,64 @@ public class MainActivity extends AppCompatActivity
     public void moleculeNumberChanged() {
         updateSceneText();
     }
+
+    public void TestCode()
+    {
+        // 1) Name, cid, Formula, Description
+        // 2) Image
+        // 3) smiles
+
+        ImageButton infoCard = (ImageButton) findViewById(R.id.testingInfoCardButton);
+        infoCard.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                new PostRequest(new IAsyncResult<String>()
+                {
+                    @Override
+                    public void onPostExecute(String result)
+                    {
+                        Log.i("Result", " " + result);
+//                        String findStr = "\"DescriptionURL\": ";
+//                        int index = result.indexOf(findStr, 120);
+//                        if (index != -1) {
+//                            int index2 = result.indexOf("\n", index);
+//                            if (index2 != -1) {
+//                                Log.i("description", result.substring(index + findStr.length(), index2));
+//                            }
+//                        }
+                        if(result != null)
+                        {
+                            try
+                            {
+                                JSONObject descriptionJson = new JSONObject(result);
+                                JSONArray info = descriptionJson.getJSONObject("InformationList").getJSONArray("Information");
+
+                                JSONObject cid_title = info.getJSONObject(0);
+                                Log.i("Cid", String.valueOf(cid_title.getInt("CID")));
+                                Log.i("Title", cid_title.getString("Title"));
+                                for(int i = 1; i < info.length(); i++)
+                                {
+                                    Log.i("Record", String.format("Record %d", i));
+                                    JSONObject jo = info.getJSONObject(i);
+                                    Log.i("Descriptions", jo.getString("Description"));
+                                    Log.i("Descriptions", jo.getString("DescriptionSourceName"));
+                                    Log.i("Descriptions", jo.getString("DescriptionURL"));
+                                }
+                            }
+                            catch (JSONException ex) {
+                                Toast.makeText(MainActivity.this, "Unable to gather information on this Molecule. Check connection or Molecule ID",
+                                                Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }
+                }).execute("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Serine/description/JSON");
+
+                // replace space with %20
+                // https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/dopeamine/description/JSON"     this is for descriptions
+            }
+        });
+    }
+
 }
