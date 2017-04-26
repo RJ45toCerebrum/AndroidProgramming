@@ -2,18 +2,15 @@ package com.example.tylerheers.molebuilderproto;
 
 
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,7 +22,6 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.openscience.cdk.Atom;
 import org.openscience.cdk.config.Elements;
 import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.interfaces.IAtomContainer;
@@ -34,16 +30,15 @@ import org.rajawali3d.view.ISurface;
 import org.rajawali3d.view.SurfaceView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 
 //TODO: Molecule information card; if available
-//TODO: Fix Bond distances and add colors or better text of the atoms in 2D-renderer
-//TODO: quick access sliding toolbar in the 2D renderer to quick access to the pan/move and selection tool
-//TODO: Undo actions
-//TODO: atom charge and name text in the 3D renderer
+//TODO: Fix Bond distances and add colors and better text of the atoms in 2D-renderer; make more visually pleasing when zooming in/ out
 //TODO: make the selection tool better via; drag box selection
+//TODO: Make tool bar on the toolbar slide-able instead it it always being there
+//TODO: Undo actions --> Undoable actions include: 1) adding atoms/molecules, 2) removing atoms/molecules, 3) adding bonds
+//TODO: More atom information in the 3D renderer such as: Dipole, Charge or each atoms, atom names, and electron cloud surface
 public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener,
                                      IAsyncResult<String>,
@@ -122,7 +117,7 @@ public class MainActivity extends AppCompatActivity
         updateModeButtonColors();
 
         // Test Code to delete
-        TestCode();
+        //TestCode();
     }
 
     protected void onPause() {
