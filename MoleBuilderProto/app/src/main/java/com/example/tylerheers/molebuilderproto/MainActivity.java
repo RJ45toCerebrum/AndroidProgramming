@@ -1,5 +1,11 @@
 package com.example.tylerheers.molebuilderproto;
 
+// After school ends fixes
+//TODO: Fix Bond distances and add colors and better text of the atoms in 2D-renderer; make more visually pleasing when zooming in/ out
+//TODO: render atoms in 3D renderer via first selected is 0 point
+//TODO: Fix Bond distances and add colors and better text of the atoms in 2D-renderer; make more visually pleasing when zooming in/ out
+//TODO: Make tool bar on the toolbar slide-able instead it it always being there
+//TODO: Undo actions --> Undoable actions include: 1) adding atoms/molecules, 2) removing atoms/molecules, 3) adding bonds
 
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
@@ -32,13 +38,11 @@ import org.rajawali3d.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO: Molecule letters trash; Just periodic table buttons; --> Move to bottom right corner
 
-//TODO: Molecule information card; if available
-//TODO: Fix Bond distances and add colors and better text of the atoms in 2D-renderer; make more visually pleasing when zooming in/ out
 //TODO: make the selection tool better via; drag box selection
-//TODO: Make tool bar on the toolbar slide-able instead it it always being there
-//TODO: Undo actions --> Undoable actions include: 1) adding atoms/molecules, 2) removing atoms/molecules, 3) adding bonds
 //TODO: More atom information in the 3D renderer such as: Dipole, Charge or each atoms, atom names, and electron cloud surface
+
 public class MainActivity extends AppCompatActivity
                           implements View.OnClickListener,
                                      IAsyncResult<String>,
@@ -80,6 +84,10 @@ public class MainActivity extends AppCompatActivity
         sceneContainer = SceneContainer.getInstance();
         sceneContainer.addSceneChangeListener(this);
 
+        canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
+        toolbarLayout = (LinearLayout) findViewById(R.id.toolBarLayout);
+        toolBarWidth = toolbarLayout.getLayoutParams().width;
+
         ImageButton searchMoleButton = (ImageButton) findViewById(R.id.startMoleSearch);
         searchMoleButton.setOnClickListener(new View.OnClickListener()
         {
@@ -92,15 +100,6 @@ public class MainActivity extends AppCompatActivity
                 diag.show(getFragmentManager(), "123");
             }
         });
-
-        canvasLayout = (RelativeLayout) findViewById(R.id.canvasLayout);
-        toolbarLayout = (LinearLayout) findViewById(R.id.toolBarLayout);
-        toolBarWidth = toolbarLayout.getLayoutParams().width;
-
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            sceneText = (TextView) findViewById(R.id.sceneInfoTextView);
-            updateSceneText();
-        }
 
         ImageButton helpDiagButton = (ImageButton) findViewById(R.id.helpButton);
         helpDiagButton.setOnClickListener(new View.OnClickListener() {
@@ -115,9 +114,13 @@ public class MainActivity extends AppCompatActivity
         initModeButtons();
         initImmediateActionButtons();
         updateModeButtonColors();
-
         // Test Code to delete
-        //TestCode();
+        initInfoCardButton();
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            sceneText = (TextView) findViewById(R.id.sceneInfoTextView);
+            updateSceneText();
+        }
     }
 
     protected void onPause() {
@@ -263,7 +266,6 @@ public class MainActivity extends AppCompatActivity
         modeButtons.add(periodicTableButton);
     }
 
-
     private void initImmediateActionButtons()
     {
         ImageButton singleBondButton = (ImageButton) findViewById(R.id.singleBondButton);
@@ -319,11 +321,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                Animation buttonRotationAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_up_down);
-                buttonRotationAnim.setDuration(1000);
-                v.startAnimation(buttonRotationAnim);
-
-
+//                Animation buttonRotationAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_up_down);
+//                buttonRotationAnim.setDuration(1000);
+//                v.startAnimation(buttonRotationAnim);
                 if(moleRenderer3D == null)
                 {
                     if (sceneContainer.selectedMolecule == null) {
@@ -483,7 +483,7 @@ public class MainActivity extends AppCompatActivity
     public void onPostExecute(String results)
     {
         if(results == null) {
-            Toast.makeText(this, "Could not find molecule", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Sorry, could not construct molecule.", Toast.LENGTH_LONG).show();
             initRenderer2D();
             return;
         }
@@ -522,61 +522,102 @@ public class MainActivity extends AppCompatActivity
         updateSceneText();
     }
 
-    public void TestCode()
+    public void initInfoCardButton()
     {
         // 1) Name, cid, Formula, Description
         // 2) Image
         // 3) smiles
 
-        ImageButton infoCard = (ImageButton) findViewById(R.id.testingInfoCardButton);
-        infoCard.setOnClickListener(new View.OnClickListener()
+        ImageButton infoCardButton = (ImageButton) findViewById(R.id.testingInfoCardButton);
+        infoCardButton.setOnClickListener(new View.OnClickListener()
         {
+            String smilesStr = null;
+            boolean successful = true;
+
             @Override
             public void onClick(View v)
             {
-                new PostRequest(new IAsyncResult<String>()
+                if(sceneContainer.selectedMolecule != null)
                 {
-                    @Override
-                    public void onPostExecute(String result)
+                    String urlQueryStr = null;
+                    try
                     {
-                        Log.i("Result", " " + result);
-//                        String findStr = "\"DescriptionURL\": ";
-//                        int index = result.indexOf(findStr, 120);
-//                        if (index != -1) {
-//                            int index2 = result.indexOf("\n", index);
-//                            if (index2 != -1) {
-//                                Log.i("description", result.substring(index + findStr.length(), index2));
-//                            }
-//                        }
-                        if(result != null)
-                        {
-                            try
-                            {
-                                JSONObject descriptionJson = new JSONObject(result);
-                                JSONArray info = descriptionJson.getJSONObject("InformationList").getJSONArray("Information");
+                        smilesStr = Molecule.generateSmilesString(sceneContainer.selectedMolecule);
+                        Log.i("Smiles", smilesStr);
+                        urlQueryStr = String.format("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/description/JSON", smilesStr);
+                    }
+                    catch (CDKException ex) {
+                        successful = false;
+                    }
 
-                                JSONObject cid_title = info.getJSONObject(0);
-                                Log.i("Cid", String.valueOf(cid_title.getInt("CID")));
-                                Log.i("Title", cid_title.getString("Title"));
-                                for(int i = 1; i < info.length(); i++)
+                    // execute post request and then call onPostExecute
+                    new PostRequest(new IAsyncResult<String>()
+                    {
+                        @Override
+                        public void onPostExecute(String result)
+                        {
+                            PubChemCompoundDescription compoundDescription = null;
+
+                            //Log.i("\nResult", " " + result + "\n\n");
+                            if (result != null)
+                            {
+                                try
                                 {
-                                    Log.i("Record", String.format("Record %d", i));
-                                    JSONObject jo = info.getJSONObject(i);
-                                    Log.i("Descriptions", jo.getString("Description"));
-                                    Log.i("Descriptions", jo.getString("DescriptionSourceName"));
-                                    Log.i("Descriptions", jo.getString("DescriptionURL"));
+                                    JSONObject pubChemDescriptionJson = new JSONObject(result);
+                                    JSONArray info = pubChemDescriptionJson.getJSONObject("InformationList").getJSONArray("Information");
+                                    JSONObject cid_title = info.getJSONObject(0);
+
+                                    //Testing
+                                    Log.i("Cid", String.valueOf(cid_title.getInt("CID")));
+                                    Log.i("Title", cid_title.getString("Title"));
+                                    // end testing
+
+                                    compoundDescription = new PubChemCompoundDescription();
+                                    compoundDescription.cid = cid_title.getInt("CID");
+                                    compoundDescription.title = cid_title.getString("Title");
+                                    compoundDescription.smiles = smilesStr;
+
+                                    for (int i = 1; i < info.length(); i++)
+                                    {
+                                        JSONObject jRecords = info.getJSONObject(i);
+                                        Log.i("Record", String.format("Record %d", i));
+                                        Log.i("Descriptions", jRecords.getString("Description"));
+                                        Log.i("Descriptions", jRecords.getString("DescriptionSourceName"));
+                                        Log.i("Descriptions", jRecords.getString("DescriptionURL"));
+
+                                        compoundDescription.addRecord(jRecords.getString("Description"),
+                                                                      jRecords.getString("DescriptionURL"),
+                                                                      jRecords.getString("DescriptionSourceName"));
+                                    }
+                                }
+                                catch (JSONException ex) {
+                                    successful = false;
                                 }
                             }
-                            catch (JSONException ex) {
-                                Toast.makeText(MainActivity.this, "Unable to gather information on this Molecule. Check connection or Molecule ID",
-                                                Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    }
-                }).execute("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Serine/description/JSON");
+                            else
+                                successful = false;
 
-                // replace space with %20
-                // https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/dopeamine/description/JSON"     this is for descriptions
+
+                            if(successful)
+                            {
+                                // Insert dialog here
+                                MoleInfoCard moleInfoCard = new MoleInfoCard();
+                                moleInfoCard.setCompoundDescription(compoundDescription);
+                                moleInfoCard.show(getFragmentManager(), "123");
+                            }
+                            else
+                                Toast.makeText(MainActivity.this, "Unable to gather information on this Molecule. Check connection or Molecule ID",
+                                        Toast.LENGTH_LONG).show();
+                        }
+
+                    }).execute(urlQueryStr);
+                }
+                // Molecule not selected
+                else
+                {
+                    Toast.makeText(MainActivity.this, "Must have molecule selected in order to get its information",
+                            Toast.LENGTH_LONG).show();
+                }
             }
         });
     }

@@ -118,6 +118,7 @@
             android:layout_marginLeft="1dp"
             android:background="#a1a1a1"/>
 
+        <!--Insert Renderer's here-->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -134,9 +135,8 @@
         android:background="#cb787878"
         android:id="@+id/buttonLayout">
 
-
         <ImageButton
-            android:layout_width="69dp"
+            android:layout_width="70dp"
             android:layout_height="match_parent"
             android:minWidth="80dp"
             android:id="@+id/startMoleSearch"
@@ -145,19 +145,18 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:minWidth="80dp"
+            android:minWidth="70dp"
             android:src="@drawable/ic_3d_rotation_black_24dp"
             android:layout_marginStart="5dp"
             android:id="@+id/to3DButton"/>
 
         <ImageButton
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
+            android:layout_height="match_parent"
+            android:minWidth="70dp"
             android:layout_marginStart="5dp"
-            android:src="@drawable/ic_help_outline_black_24dp"
-            android:id="@+id/helpButton"
-            style="@android:style/Widget.Holo.Light.ImageButton"
+            android:src="@drawable/ic_format_italic_black_24dp"
+            android:id="@+id/testingInfoCardButton"
             android:layout_gravity="center"/>
 
         <ImageButton
@@ -166,7 +165,7 @@
             android:minWidth="50dp"
             android:layout_marginStart="5dp"
             android:src="@drawable/ic_help_outline_black_24dp"
-            android:id="@+id/testingInfoCardButton"
+            android:id="@+id/helpButton"
             style="@android:style/Widget.Holo.Light.ImageButton"
             android:layout_gravity="center"/>
 

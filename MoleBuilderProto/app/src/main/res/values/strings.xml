@@ -11,6 +11,13 @@
     <string name="video_demon">Video Demonstration can be found
         <a href="https://www.youtube.com/watch?v=DgBhbgMC8p0">here</a>
     </string>
+
+    <string name="important_help_message">
+        1) To Deselect atoms you double tap part of the screen with no atoms\n\n
+        2) Select a Molecule by holding down on one of the atoms of the molecule\n\n
+        3) In order to render molecule in 3D or get information for molecule, you must select the molecule.\n\n
+        4) In 3D mode, touch and hold the screen in order to rotate molecule
+    </string>
     <string-array name="elements">
         <item>hydrogen</item>
         <item>carbon</item>
