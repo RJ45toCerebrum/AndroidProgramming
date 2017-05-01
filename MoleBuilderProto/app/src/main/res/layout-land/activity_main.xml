@@ -19,7 +19,6 @@
         <LinearLayout
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:weightSum="1"
             android:orientation="vertical"
             android:animateLayoutChanges="true"
             android:id="@+id/toolBarLayout">
@@ -27,8 +26,7 @@
             <!--Mode buttons-->
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.6"
+                android:layout_height="match_parent"
                 android:id="@+id/atomScrollView">
 
                 <LinearLayout
@@ -49,30 +47,6 @@
                         android:layout_height="50dp"
                         android:src="@drawable/ic_pan_tool_black_24dp"
                         android:id="@+id/selectionButton" />
-
-                </LinearLayout>
-
-            </ScrollView>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_marginTop="1dp"
-                android:layout_marginBottom="1dp"/>
-
-            <!--Immediate Mode buttons-->
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.4"
-                android:id="@+id/modeScrollView">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:id="@+id/bondScrollViewLayout">
 
                     <ImageButton
                         android:layout_width="match_parent"
@@ -115,7 +89,6 @@
 
                 </LinearLayout>
             </ScrollView>
-
         </LinearLayout>
 
         <View

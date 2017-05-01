@@ -1,11 +1,13 @@
 package com.example.tylerheers.molebuilderproto;
 
 // After school ends fixes
+//TODO: 3. select molecule via select all atoms
 //TODO: Fix Bond distances and add colors and better text of the atoms in 2D-renderer; make more visually pleasing when zooming in/ out
 //TODO: render atoms in 3D renderer via first selected is 0 point
 //TODO: Fix Bond distances and add colors and better text of the atoms in 2D-renderer; make more visually pleasing when zooming in/ out
 //TODO: Make tool bar on the toolbar slide-able instead it it always being there
 //TODO: Undo actions --> Undoable actions include: 1) adding atoms/molecules, 2) removing atoms/molecules, 3) adding bonds
+//TODO: More atom information in the 3D renderer such as: Dipole, Charge or each atoms, atom names, and electron cloud surface
 
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
@@ -15,8 +17,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,14 +38,10 @@ import org.rajawali3d.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO: Molecule letters trash; Just periodic table buttons; --> Move to bottom right corner
-
 //TODO: make the selection tool better via; drag box selection
-//TODO: More atom information in the 3D renderer such as: Dipole, Charge or each atoms, atom names, and electron cloud surface
 
 public class MainActivity extends AppCompatActivity
-                          implements View.OnClickListener,
-                                     IAsyncResult<String>,
+                          implements IAsyncResult<String>,
                                      SceneContainer.SceneChangeListener
 {
     enum Mode
@@ -111,8 +107,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         initRenderer2D();
-        initModeButtons();
-        initImmediateActionButtons();
+        initToolbarButtons();
         updateModeButtonColors();
         // Test Code to delete
         initInfoCardButton();
@@ -144,62 +139,62 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void initModeButtons()
+    // init. the buttons in the toolbar
+    private void initToolbarButtons()
     {
         modeButtons = new ArrayList<>(12);
 
         LinearLayout atomButtonLayout = (LinearLayout)findViewById(R.id.atomScrollViewLayout);
-        String[] elementsArray = getResources().getStringArray(R.array.elements);
-
-        for(String e : elementsArray)
-        {
-            AtomButton button = null;
-            switch (e)
-            {
-                case "hydrogen":
-                    button = new AtomButton(this);
-                    button.setElement(Elements.Hydrogen);
-                    button.setText(Elements.HYDROGEN.getSymbol());
-                    break;
-                case "carbon":
-                    button = new AtomButton(this);
-                    button.setElement(Elements.Carbon);
-                    button.setText(Elements.CARBON.getSymbol());
-                    break;
-                case "nitrogen":
-                    button = new AtomButton(this);
-                    button.setElement(Elements.Nitrogen);
-                    button.setText(Elements.NITROGEN.getSymbol());
-                    break;
-                case "oxygen":
-                    button = new AtomButton(this);
-                    button.setElement(Elements.Oxygen);
-                    button.setText(Elements.OXYGEN.getSymbol());
-                    break;
-                case "phosphorus":
-                    button = new AtomButton(this);
-                    button.setElement(Elements.Phosphorus);
-                    button.setText(Elements.PHOSPHORUS.getSymbol());
-                    break;
-                case "sulfur":
-                    button = new AtomButton(this);
-                    button.setElement(Elements.Sulfur);
-                    button.setText(Elements.SULFUR.getSymbol());
-                    break;
-            }
-
-            if(button == null)
-                continue;
-
-            button.setLayoutParams(atomButtonLayout.getLayoutParams());
-            button.getLayoutParams().height = 190;
-            button.setClickable(true);
-            button.setOnClickListener(this);
-            atomButtonLayout.addView(button);
-
-            modeButtons.add(button);
-        }
-
+//        String[] elementsArray = getResources().getStringArray(R.array.elements);
+//
+//        for(String e : elementsArray)
+//        {
+//            AtomButton button = null;
+//            switch (e)
+//            {
+//                case "hydrogen":
+//                    button = new AtomButton(this);
+//                    button.setElement(Elements.Hydrogen);
+//                    button.setText(Elements.HYDROGEN.getSymbol());
+//                    break;
+//                case "carbon":
+//                    button = new AtomButton(this);
+//                    button.setElement(Elements.Carbon);
+//                    button.setText(Elements.CARBON.getSymbol());
+//                    break;
+//                case "nitrogen":
+//                    button = new AtomButton(this);
+//                    button.setElement(Elements.Nitrogen);
+//                    button.setText(Elements.NITROGEN.getSymbol());
+//                    break;
+//                case "oxygen":
+//                    button = new AtomButton(this);
+//                    button.setElement(Elements.Oxygen);
+//                    button.setText(Elements.OXYGEN.getSymbol());
+//                    break;
+//                case "phosphorus":
+//                    button = new AtomButton(this);
+//                    button.setElement(Elements.Phosphorus);
+//                    button.setText(Elements.PHOSPHORUS.getSymbol());
+//                    break;
+//                case "sulfur":
+//                    button = new AtomButton(this);
+//                    button.setElement(Elements.Sulfur);
+//                    button.setText(Elements.SULFUR.getSymbol());
+//                    break;
+//            }
+//
+//            if(button == null)
+//                continue;
+//
+//            button.setLayoutParams(atomButtonLayout.getLayoutParams());
+//            button.getLayoutParams().height = 190;
+//            button.setClickable(true);
+//            button.setOnClickListener(this);
+//            atomButtonLayout.addView(button);
+//
+//            modeButtons.add(button);
+//        }
         initPeriodicTableButton();
 
         ImageButton selectionButton = (ImageButton) findViewById(R.id.selectionButton);
@@ -236,36 +231,10 @@ public class MainActivity extends AppCompatActivity
         atomButtonLayout.addView(panZoomButton);
 
         modeButtons.add(panZoomButton);
+        initImmediateActionButtons();
     }
 
-    private void initPeriodicTableButton()
-    {
-        LinearLayout atomButtonLayout = (LinearLayout)findViewById(R.id.atomScrollViewLayout);
-        ImageButton periodicTableButton = new ImageButton(this);
-        periodicTableButton.setImageResource(R.drawable.periodic_table);
-        periodicTableButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        periodicTableButton.setLayoutParams(atomButtonLayout.getLayoutParams());
-        periodicTableButton.getLayoutParams().height = 220;
-
-        atomButtonLayout.addView(periodicTableButton);
-        periodicTableButton.setClickable(true);
-        periodicTableButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                currentMode = Mode.AddAtom;
-                selectedButton = v;
-                PeriodicTable pt = PeriodicTable.newInstance(0);
-                pt.setMainActivity((MainActivity) v.getContext());
-                pt.show(getFragmentManager(), "123");
-            }
-        });
-        periodicTableButton.setElevation(7);
-
-        modeButtons.add(periodicTableButton);
-    }
-
+    // init more buttons in the toolbar
     private void initImmediateActionButtons()
     {
         ImageButton singleBondButton = (ImageButton) findViewById(R.id.singleBondButton);
@@ -313,6 +282,36 @@ public class MainActivity extends AppCompatActivity
         init3DButton();
     }
 
+    // init the periodic table button
+    private void initPeriodicTableButton()
+    {
+        LinearLayout atomButtonLayout = (LinearLayout)findViewById(R.id.atomScrollViewLayout);
+        ImageButton periodicTableButton = new ImageButton(this);
+        periodicTableButton.setImageResource(R.drawable.periodic_table);
+        periodicTableButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        periodicTableButton.setLayoutParams(atomButtonLayout.getLayoutParams());
+        periodicTableButton.getLayoutParams().height = 220;
+
+        atomButtonLayout.addView(periodicTableButton);
+        periodicTableButton.setClickable(true);
+        periodicTableButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                currentMode = Mode.AddAtom;
+                selectedButton = v;
+                PeriodicTable pt = PeriodicTable.newInstance(0);
+                pt.setMainActivity((MainActivity) v.getContext());
+                pt.show(getFragmentManager(), "123");
+            }
+        });
+        periodicTableButton.setElevation(7);
+
+        modeButtons.add(periodicTableButton);
+    }
+
+    // init button to convert molecule into 3D
     private void init3DButton()
     {
         ImageButton to3DButton = (ImageButton) findViewById(R.id.to3DButton);
@@ -321,11 +320,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-//                Animation buttonRotationAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_up_down);
-//                buttonRotationAnim.setDuration(1000);
-//                v.startAnimation(buttonRotationAnim);
                 if(moleRenderer3D == null)
                 {
+                    // must have a molecule selected in order to render it
                     if (sceneContainer.selectedMolecule == null) {
                         Toast.makeText(MainActivity.this,
                                 "Must have a Molecule selected to Render in 3D",
@@ -339,19 +336,16 @@ public class MainActivity extends AppCompatActivity
                     initRenderer2D();
             }
         });
-
-        float centreX = to3DButton.getX() + to3DButton.getWidth()  / 2;
-        float centerY = to3DButton.getY() + to3DButton.getHeight() / 2;
-        to3DButton.setPivotX(centreX);
-        to3DButton.setPivotY(centerY);
     }
 
+    // init the 2D renderer
     private void initRenderer2D()
     {
+        // if the 2D renderer is open the show the toolbar
         showToolBar(true);
+        // remove the 3D renderer
         canvasLayout.removeAllViewsInLayout();
         moleRenderer3D = null;
-
         moleRenderer = new MoleRenderer2D(this);
         canvasLayout.addView(moleRenderer);
     }
@@ -361,11 +355,12 @@ public class MainActivity extends AppCompatActivity
         showToolBar(false);
         canvasLayout.removeAllViewsInLayout();
         moleRenderer = null;
-        moleRenderer3D= null;
+        moleRenderer3D = null;
         try {
             moleRenderer3D = new MoleRenderer3D(this, mole);
         }
-        catch (Exception e){
+        catch (Exception e)
+        {
             Log.e("Could not construct", e.getMessage());
             initRenderer2D();
             return;
@@ -374,7 +369,6 @@ public class MainActivity extends AppCompatActivity
         surfView = new SurfaceView(this);
         surfView.setRenderMode(ISurface.RENDERMODE_WHEN_DIRTY);
         surfView.setSurfaceRenderer(moleRenderer3D);
-
         surfView.setOnTouchListener(new View.OnTouchListener()
         {
             @Override
@@ -389,6 +383,7 @@ public class MainActivity extends AppCompatActivity
             canvasLayout.addView(surfView);
     }
 
+    // creates new progress bar
     private void initProgressBar()
     {
         convertMoleProgress = new ProgressBar(this);
@@ -400,6 +395,8 @@ public class MainActivity extends AppCompatActivity
         canvasLayout.addView(convertMoleProgress);
     }
 
+    // send the currently selected molecule to PubChem to get the 3D version
+    // if it exists
     private void sendTo3DRenderer()
     {
         try
@@ -425,6 +422,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // show that buttons are selected;
+    // TODO: currently, this does not effect all buttons because they are not "mode" buttons
+    // TODO: this is in the process of being changed
     private void updateModeButtonColors()
     {
         for (View v: modeButtons)
@@ -436,6 +436,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // set the current button that is selected
+    // so that it can be queried later;
     public void setSelectedButton(View v){
         updateModeButtonColors();
         selectedButton = v;
@@ -443,6 +445,7 @@ public class MainActivity extends AppCompatActivity
 
     public Mode getCurrentMode() {return currentMode;}
 
+    // gets the current chosen element by casting to atombutton
     public Elements getCurrentElement()
     {
         if(currentMode == Mode.AddAtom && selectedButton != null) {
@@ -453,6 +456,7 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
+    // updates text that shows the number of atoms, molecules and bonds
     private void updateSceneText()
     {
         if(sceneText != null)
@@ -465,6 +469,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // shows and hides toolbar
     private void showToolBar(boolean show)
     {
         if(show) {
@@ -479,6 +484,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // this is run after call to sendTo3DRenderer; Async callback;
     @Override
     public void onPostExecute(String results)
     {
@@ -498,15 +504,7 @@ public class MainActivity extends AppCompatActivity
         convertMoleProgress = null;
     }
 
-    // onClick executed when atom buttons clicked
-    @Override
-    public void onClick(View v)
-    {
-        currentMode = Mode.AddAtom;
-        selectedButton = v;
-        updateModeButtonColors();
-    }
-
+    // implements the scene change listeners
     @Override
     public void atomNumberChanged() {
         updateSceneText();
@@ -522,12 +520,9 @@ public class MainActivity extends AppCompatActivity
         updateSceneText();
     }
 
+    // init the information card on the molecule
     public void initInfoCardButton()
     {
-        // 1) Name, cid, Formula, Description
-        // 2) Image
-        // 3) smiles
-
         ImageButton infoCardButton = (ImageButton) findViewById(R.id.testingInfoCardButton);
         infoCardButton.setOnClickListener(new View.OnClickListener()
         {
@@ -568,8 +563,8 @@ public class MainActivity extends AppCompatActivity
                                     JSONObject cid_title = info.getJSONObject(0);
 
                                     //Testing
-                                    Log.i("Cid", String.valueOf(cid_title.getInt("CID")));
-                                    Log.i("Title", cid_title.getString("Title"));
+//                                    Log.i("Cid", String.valueOf(cid_title.getInt("CID")));
+//                                    Log.i("Title", cid_title.getString("Title"));
                                     // end testing
 
                                     compoundDescription = new PubChemCompoundDescription();
@@ -580,11 +575,10 @@ public class MainActivity extends AppCompatActivity
                                     for (int i = 1; i < info.length(); i++)
                                     {
                                         JSONObject jRecords = info.getJSONObject(i);
-                                        Log.i("Record", String.format("Record %d", i));
-                                        Log.i("Descriptions", jRecords.getString("Description"));
-                                        Log.i("Descriptions", jRecords.getString("DescriptionSourceName"));
-                                        Log.i("Descriptions", jRecords.getString("DescriptionURL"));
-
+//                                        Log.i("Record", String.format("Record %d", i));
+//                                        Log.i("Descriptions", jRecords.getString("Description"));
+//                                        Log.i("Descriptions", jRecords.getString("DescriptionSourceName"));
+//                                        Log.i("Descriptions", jRecords.getString("DescriptionURL"));
                                         compoundDescription.addRecord(jRecords.getString("Description"),
                                                                       jRecords.getString("DescriptionURL"),
                                                                       jRecords.getString("DescriptionSourceName"));
