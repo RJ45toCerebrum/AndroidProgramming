@@ -1,4 +1,4 @@
-package com.example.tylerheers.molebuilderproto;
+package com.example.tylerheers.molebuilderproto.renderers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,6 +15,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Toast;
+
+import com.example.tylerheers.molebuilderproto.MainActivity;
+import com.example.tylerheers.molebuilderproto.Molecule;
+import com.example.tylerheers.molebuilderproto.MoleculeAtom;
+import com.example.tylerheers.molebuilderproto.Pair;
+import com.example.tylerheers.molebuilderproto.SceneContainer;
 
 import org.openscience.cdk.Atom;
 import org.openscience.cdk.Bond;

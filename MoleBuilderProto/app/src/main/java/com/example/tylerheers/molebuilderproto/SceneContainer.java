@@ -11,9 +11,9 @@ import java.util.List;
  * Created by tylerheers on 4/11/17.
  * This is a container that holds all scene information
  */
-class SceneContainer
+public class SceneContainer
 {
-    enum SceneChangeType
+    public enum SceneChangeType
     {
         AtomNumber, BondNumber, MoleculeNumber, All
     }
@@ -28,7 +28,7 @@ class SceneContainer
 
     private static SceneContainer ourInstance = new SceneContainer();
 
-    static SceneContainer getInstance() {
+    public static SceneContainer getInstance() {
         return ourInstance;
     }
 
@@ -39,12 +39,12 @@ class SceneContainer
 
     static final int maxAtomsForMolecule = 100;
 
-    Molecule selectedMolecule = null;
+    public Molecule selectedMolecule = null;
 
 
     private List<SceneChangeListener> sceneChangeListeners;
 
-    boolean putAtom(MoleculeAtom ma)
+    public boolean putAtom(MoleculeAtom ma)
     {
         if (ma != null)
         {
@@ -55,12 +55,12 @@ class SceneContainer
 
         return false;
     }
-    Collection<MoleculeAtom> getAtoms() {
+    public Collection<MoleculeAtom> getAtoms() {
         return atoms.values();
     }
 
 
-    boolean delAtom(String key)
+    public boolean delAtom(String key)
     {
         if (atoms.remove(key) != null)
         {
@@ -70,7 +70,7 @@ class SceneContainer
 
         return false;
     }
-    boolean delMolecule(String key)
+    public boolean delMolecule(String key)
     {
         Molecule mole = molecules.remove(key);
         if (mole != null)
@@ -82,7 +82,7 @@ class SceneContainer
         return false;
     }
 
-    boolean putMolecule(Molecule mole)
+    public boolean putMolecule(Molecule mole)
     {
         if (mole != null)
         {
@@ -98,11 +98,11 @@ class SceneContainer
 
         return false;
     }
-    Collection<Molecule> getMolecules() {
+    public Collection<Molecule> getMolecules() {
         return molecules.values();
     }
 
-    void clearScene()
+    public void clearScene()
     {
         atoms.clear();
         molecules.clear();
@@ -111,7 +111,7 @@ class SceneContainer
     }
 
 
-    int getBondCount()
+    public int getBondCount()
     {
         int bondCount = 0;
         for (Molecule m: molecules.values()) {
@@ -120,7 +120,7 @@ class SceneContainer
         return bondCount;
     }
 
-    int getAtomCount()
+    public int getAtomCount()
     {
         int numAtoms = atoms.size();
         for (Molecule m: molecules.values()) {
@@ -129,15 +129,15 @@ class SceneContainer
         return numAtoms;
     }
 
-    int getMoleculeCount() {
+    public int getMoleculeCount() {
         return molecules.size();
     }
 
-    Molecule getMolecule(String key) {
+    public Molecule getMolecule(String key) {
         return molecules.get(key);
     }
 
-    void addSceneChangeListener(SceneChangeListener listener)
+    public void addSceneChangeListener(SceneChangeListener listener)
     {
         if (sceneChangeListeners == null)
             sceneChangeListeners = new ArrayList<>();
@@ -145,7 +145,7 @@ class SceneContainer
         sceneChangeListeners.add(listener);
     }
 
-    void updateSceneListeners(SceneChangeType type)
+    public void updateSceneListeners(SceneChangeType type)
     {
 
         if(type == SceneChangeType.AtomNumber)
@@ -169,7 +169,7 @@ class SceneContainer
 
     }
 
-    boolean isAtomInMolecule(IAtom a)
+    public boolean isAtomInMolecule(IAtom a)
     {
         for (Molecule m: molecules.values()) {
             if(m.contains(a))

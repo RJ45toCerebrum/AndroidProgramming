@@ -1,15 +1,13 @@
-package com.example.tylerheers.molebuilderproto;
+package com.example.tylerheers.molebuilderproto.renderers;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v4.graphics.ColorUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import org.openscience.cdk.Bond;
 import org.openscience.cdk.geometry.GeometryUtil;
 import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
@@ -25,7 +23,6 @@ import org.rajawali3d.renderer.Renderer;
 import org.rajawali3d.scene.Scene;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +35,7 @@ import javax.vecmath.Point3d;
  * All about rendering atoms in 3D
  */
 
-class MoleRenderer3D extends Renderer
+public class MoleRenderer3D extends Renderer
 {
     private IAtomContainer molecule;
     private boolean is3D = false;
@@ -59,7 +56,7 @@ class MoleRenderer3D extends Renderer
 
     private ScaleGestureDetector scaleDetector;
 
-    MoleRenderer3D(Context context, IAtomContainer mole3d) throws Exception
+    public MoleRenderer3D(Context context, IAtomContainer mole3d) throws Exception
     {
         super(context);
 

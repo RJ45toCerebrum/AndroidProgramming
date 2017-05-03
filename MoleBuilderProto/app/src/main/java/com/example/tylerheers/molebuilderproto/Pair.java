@@ -1,8 +1,8 @@
 package com.example.tylerheers.molebuilderproto;
 
 
-class Pair<A, B>
+public class Pair<A, B>
 {
-    A first;
-    B second;
+    public A first;
+    public B second;
 }

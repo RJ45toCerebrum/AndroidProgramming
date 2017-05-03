@@ -25,6 +25,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tylerheers.molebuilderproto.renderers.MoleRenderer2D;
+import com.example.tylerheers.molebuilderproto.renderers.MoleRenderer3D;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity
                           implements IAsyncResult<String>,
                                      SceneContainer.SceneChangeListener
 {
-    enum Mode
+    public enum Mode
     {
         AddAtom, Selection, PanZoom
     }
@@ -561,12 +564,10 @@ public class MainActivity extends AppCompatActivity
                                     JSONObject pubChemDescriptionJson = new JSONObject(result);
                                     JSONArray info = pubChemDescriptionJson.getJSONObject("InformationList").getJSONArray("Information");
                                     JSONObject cid_title = info.getJSONObject(0);
-
                                     //Testing
 //                                    Log.i("Cid", String.valueOf(cid_title.getInt("CID")));
 //                                    Log.i("Title", cid_title.getString("Title"));
                                     // end testing
-
                                     compoundDescription = new PubChemCompoundDescription();
                                     compoundDescription.cid = cid_title.getInt("CID");
                                     compoundDescription.title = cid_title.getString("Title");
@@ -606,9 +607,9 @@ public class MainActivity extends AppCompatActivity
 
                     }).execute(urlQueryStr);
                 }
+
                 // Molecule not selected
-                else
-                {
+                else {
                     Toast.makeText(MainActivity.this, "Must have molecule selected in order to get its information",
                             Toast.LENGTH_LONG).show();
                 }

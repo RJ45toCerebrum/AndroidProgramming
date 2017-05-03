@@ -11,7 +11,7 @@ import java.security.InvalidParameterException;
  * Created by Tyler on 3/26/2017.
  */
 
-class MoleculeAtom extends Atom
+public class MoleculeAtom extends Atom
 {
     private Molecule molecule = null;
     private boolean isInMolecule = false;
@@ -20,32 +20,32 @@ class MoleculeAtom extends Atom
     static final int maxNumBonds = 10;
 
 
-    MoleculeAtom(Elements e){
+    public MoleculeAtom(Elements e){
         super(e.toIElement());
         this.setCovalentRadius(e.covalentRadius());
         this.setAtomicNumber(e.number());
     }
 
-    MoleculeAtom(Elements e, IAtom a){
+    public MoleculeAtom(Elements e, IAtom a){
         super(a);
         this.setCovalentRadius(e.covalentRadius());
         this.setAtomicNumber(e.number());
     }
 
-    void setMolecule(Molecule mole){
+    public void setMolecule(Molecule mole){
         molecule = mole;
         if(mole != null)
             isInMolecule = true;
     }
 
-    boolean isInMolecule(){return isInMolecule; }
+    public boolean isInMolecule(){return isInMolecule; }
 
-    Molecule getMolecule() {return molecule; }
+    public Molecule getMolecule() {return molecule; }
 
-    int getNumBonds() {return numBonds; }
-    int getNumConnectedAtoms() {return numConnectedAtoms;}
+    public int getNumBonds() {return numBonds; }
+    public int getNumConnectedAtoms() {return numConnectedAtoms;}
 
-    boolean addBond(IBond.Order order)
+    public boolean addBond(IBond.Order order)
     {
         if(!canBond(order))
             return false;
@@ -55,7 +55,7 @@ class MoleculeAtom extends Atom
         return true;
     }
 
-    void delBond(IBond.Order order) throws InvalidParameterException
+    public void delBond(IBond.Order order) throws InvalidParameterException
     {
         if(numBonds < order.numeric())
             throw new InvalidParameterException("Cannot delete a bond of order %1$d because not enough bonds");
@@ -68,11 +68,11 @@ class MoleculeAtom extends Atom
             numBonds -=3;
     }
 
-    boolean canBond(IBond.Order order) {
+    public boolean canBond(IBond.Order order) {
         return ( numBonds + order.numeric() ) <= maxNumBonds;
     }
 
-    static Elements getElement(IAtom a)
+    public static Elements getElement(IAtom a)
     {
         Elements e;
         switch (a.getAtomicNumber())
@@ -228,7 +228,7 @@ class MoleculeAtom extends Atom
         return e;
     }
 
-    static int getMaxNumBonds(Elements e) {
+    public static int getMaxNumBonds(Elements e) {
         return maxNumBonds;
     }
 }

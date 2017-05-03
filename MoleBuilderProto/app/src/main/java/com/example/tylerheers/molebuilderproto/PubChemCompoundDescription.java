@@ -9,6 +9,7 @@ import java.util.List;
 /**
  * Created by tylerheers on 4/26/17.
  *
+ * Contains all the information gained from the molecule information request
  */
 
 class PubChemCompoundDescription
@@ -19,25 +20,25 @@ class PubChemCompoundDescription
         String url;
         String source;
 
-        Record(){}
-        Record(String description, String url, String source) {
+        public Record(){}
+        public Record(String description, String url, String source) {
             this.description = description;
             this.url = url;
             this.source = source;
         }
     }
 
-    Integer cid = null;
-    String title;
-    String smiles;
+    public Integer cid = null;
+    public String title;
+    public String smiles;
     List<Record> records;
 
 
-    PubChemCompoundDescription()
+    public PubChemCompoundDescription()
     {
         records = new ArrayList<>(3);
     }
-    PubChemCompoundDescription(int cid, String title, String smilesStr)
+    public PubChemCompoundDescription(int cid, String title, String smilesStr)
     {
         this.cid = cid;
         this.title = title;
@@ -45,7 +46,7 @@ class PubChemCompoundDescription
         records = new ArrayList<>(3);
     }
 
-    void addRecord(String description, String url, String source)
+    public void addRecord(String description, String url, String source)
     {
         description = description.replaceAll("<\\/?a[^>]*>", "");
         if(description.length() > 200)
@@ -54,18 +55,18 @@ class PubChemCompoundDescription
         Record newRec = new Record(description, url, source);
         records.add(newRec);
     }
-    boolean removeRecord(Record record) {
+    public boolean removeRecord(Record record) {
         return record != null && records.remove(record);
     }
 
     @Nullable
-    Record get(int i) {
+    public Record get(int i) {
         if(i >= records.size())
             return null;
         return records.get(i);
     }
-    List<Record> getRecords() {
+    public List<Record> getRecords() {
         return records;
     }
-    int recordSize(){return records.size();}
+    public int recordSize(){return records.size();}
 }

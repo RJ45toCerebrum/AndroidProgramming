@@ -15,20 +15,9 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import org.openscience.cdk.AtomContainer;
-import org.openscience.cdk.Element;
-import org.openscience.cdk.config.Elements;
-import org.openscience.cdk.exception.CDKException;
-import org.openscience.cdk.interfaces.IAtom;
-import org.openscience.cdk.interfaces.IAtomContainer;
-import org.openscience.cdk.interfaces.IBond;
-import org.openscience.cdk.io.MDLV2000Reader;
-import org.openscience.cdk.silent.Bond;
+import com.example.tylerheers.molebuilderproto.renderers.MoleRenderer2D;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
+import org.openscience.cdk.interfaces.IAtomContainer;
 
 /**
  * Created by Tyler on 3/11/2017.

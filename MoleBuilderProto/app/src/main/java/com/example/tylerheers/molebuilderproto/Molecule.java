@@ -1,7 +1,6 @@
 package com.example.tylerheers.molebuilderproto;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import org.openscience.cdk.AtomContainer;
 import org.openscience.cdk.atomtype.CDKAtomTypeMatcher;
@@ -24,16 +23,15 @@ import java.util.HashMap;
  *
  */
 
-class Molecule extends AtomContainer
+public class Molecule extends AtomContainer
 {
     private SceneContainer sceneContainer;
-    Molecule()
-    {
+    public Molecule() {
         super();
         sceneContainer = SceneContainer.getInstance();
     }
 
-    IBond.Order getBondOrderBetweenAtoms(IAtom a1, IAtom a2)
+    public IBond.Order getBondOrderBetweenAtoms(IAtom a1, IAtom a2)
     {
         IBond b = getBond(a1, a2);
         return b.getOrder();
@@ -45,7 +43,7 @@ class Molecule extends AtomContainer
      * @param atom
      * @return: int
      */
-    void removeAtom(MoleculeAtom atom)
+    public void removeAtom(MoleculeAtom atom)
     {
         // reduce bond number for all connected atoms
         for(IAtom conAtom : getConnectedAtomsList(atom)) {
@@ -67,7 +65,7 @@ class Molecule extends AtomContainer
      * such that it is now one Molecule, and the passed in Molecule is emptied
      * @param molecule
      */
-    void addMolecule(Molecule molecule)
+    public void addMolecule(Molecule molecule)
     {
         for (IAtom a: molecule.atoms())
         {
@@ -82,7 +80,7 @@ class Molecule extends AtomContainer
         molecule.removeAllElements();
     }
 
-    void addAtom(MoleculeAtom a)
+    public void addAtom(MoleculeAtom a)
     {
         super.addAtom(a);
         a.setMolecule(this);
@@ -94,7 +92,7 @@ class Molecule extends AtomContainer
      * @param container
      * @return Molecule
      */
-    static Molecule convertAtomContainer(IAtomContainer container)
+    public static Molecule convertAtomContainer(IAtomContainer container)
     {
         SceneContainer sceneContainer = SceneContainer.getInstance();
         HashMap<IBond, MoleculeAtom[]> bondAtoms = new HashMap<>();
@@ -153,12 +151,10 @@ class Molecule extends AtomContainer
     }
 
     @Nullable
-    static String generateSmilesString(IAtomContainer container) throws CDKException
+    public static String generateSmilesString(IAtomContainer container) throws CDKException
     {
         if(container == null)
             return null;
-
-
 
         CDKAtomTypeMatcher matcher = CDKAtomTypeMatcher.getInstance(container.getBuilder());
         for (IAtom atom: container.atoms())
