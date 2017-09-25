@@ -9,7 +9,7 @@ Render molecules in 2D and 3D forms. I will include:
 # Current Work
 
 [![ScreenShot](https://raw.githubusercontent.com/RJ45toCerebrum/ComputerGraphics/FinalProject/FinalProject/Screen%20Shot%202017-03-28%20at%205.58.08%20PM.png)]
-(https://youtu.be/Pa6H6rjoBwE)
+(https://www.youtube.com/edit?o=U&video_id=DgBhbgMC8p0)
 
 # Weekly Breakdown
 1. Week 1: Finish 2D MoleBuilding
